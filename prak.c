@@ -26,7 +26,7 @@ void sort(char ** arr, int size){
     }
 }
 
-char ** enter(unsigned int * c_p){
+char ** enter(int unsigned * c_p){
     char ** words;   //массив указателей на char
     int unsigned counter = 0;
     int unsigned str_length, k = 0;
@@ -34,7 +34,7 @@ char ** enter(unsigned int * c_p){
 
     char * s = malloc(ADD_M);
     if (!s) return NULL;
-    words = malloc(n * sizeof(char *)); //Выделяем память под массив
+    words = malloc(n * sizeof(char *)); //выделяем память под массив
 
     do {
         printf("%d: ", counter + 1);
