@@ -53,3 +53,20 @@ double * num_m(double * m_arr, double k){
     }
     return num_arr;
 }
+
+double * mul_m(double * a, double * b, int nn, int mm, int kk){
+    double * c;
+    c = malloc(nn * kk * sizeof(double));
+    int sum = 0;
+    for(int i = 0; i < nn; i++){
+        for(int k = 0; k < kk; k++){
+            for(int j = 0; j < mm; j++){
+                sum += a[i * nn + j] * b[j * mm + k];
+            }
+            c[i * nn + k] = sum;
+            sum = 0;
+        }
+    }
+
+    return c;
+}
