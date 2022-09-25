@@ -43,3 +43,13 @@ double * sum_m(double * m1_arr, double * m2_arr){
     return sum_arr;
 }
 
+double * num_m(double * m_arr, double k){
+    double * num_arr;
+    num_arr = malloc(n * m * sizeof(double));
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m; j++){
+            num_arr[i * n + j] = m_arr[i * n + j] * k;
+        }
+    }
+    return num_arr;
+}
