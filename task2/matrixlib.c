@@ -92,7 +92,7 @@ double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2)
 void determinant_gauss(double * m_arr, int nn, int mm){
     if (mm != nn){
         printf("\n! the matrix is not square !");
-        return NULL;
+        exit;
     }
 
     int minim = INT_MAX, i = 0 , j = 0, l, sq = nn;
