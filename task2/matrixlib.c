@@ -1,24 +1,21 @@
 #include "matrixlib.h"
 
+
 const int unsigned n = 3;
 const int unsigned m = 3;
 
 void instruction(void){
     printf("---------\n%s\n-----------", "List of avaliable commands:");
-    printf("\'add\' - add a new matrix\n");  
+    printf("\n\'add\' - add a new matrix\n");
     printf("\'out\' - output the matrix\n");
-    printf("\'+\' — addition of 2 matrices\n");
-    printf("\'*\' — multiplication of 2 matrices\n");
-    printf("\'num\' — multiplying a matrix by a number\n");
-    printf("\'det\' — calculation of the determinant of the matrix\n");
+    printf("\'+\' - addition of 2 matrices\n");
+    printf("\'*\' - multiplication of 2 matrices\n");
+    printf("\'num\' - multiplying a matrix by a number\n");
+    printf("\'det\' - calculation of the determinant of the matrix\n");
     printf("-----------\n");
 }
 
-double * input_m(void){
-    int nn, mm;
-    scanf("\nEnter the number of rows: %d", nn);
-    scanf("\nand the number of columns: %d", mm);
-
+double * input_m(int nn, int mm){
     double * arr;
     arr = malloc(nn * mm * sizeof(double));
     for(int i = 0; i < nn; i++){

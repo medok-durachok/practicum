@@ -7,7 +7,7 @@
 
 void instruction(void);
 
-double * input_m(void);
+double * input_m(int nn, int mm);
 
 void output_m(double * m_arr);
 
