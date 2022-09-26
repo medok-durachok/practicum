@@ -73,7 +73,7 @@ char ** enter(int unsigned * c_p){
 int main()
 {
     int unsigned counter = 0;
-    printf("-----------\n%s\n", "Enter the words, each from a new line. To stop entering, print \"end\"");
+    printf("-----------\n%s\n", "Enter the words, each from a new line. To stop entering, print \"end.\"");
     char ** arr = enter(&counter);
 
     if(counter == 0){
