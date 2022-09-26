@@ -1,5 +1,5 @@
-#ifndef MATRIXLIB_H
-#define MATRIXLIB_H
+#ifndef MATRIXLIB_H_INCLUDED
+#define MATRIXLIB_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
