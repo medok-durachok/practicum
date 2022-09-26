@@ -5,17 +5,17 @@
 #include <math.h>
 #include <limits.h>
 
-void instruction();
+void instruction(void);
 
-double * input_m();
+double * input_m(void);
 
 void output_m(double * m_arr);
 
-double * sum_m(double * m1_arr, double * m2_arr);
+double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2);
 
-double * num_m(double * m_arr, double k);
+double * num_m(double * m_arr);
 
-double * mul_m(double * a, double * b, int nn, int mm, int kk);
+double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2);
 
 void determinant_gauss(double * m_arr, int nn, int mm);
 
