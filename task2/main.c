@@ -14,11 +14,13 @@ int main(){
     }
 
     while(strcmp(command, "exit") != 0){
-        printf("\nCommand: ");
+        printf("-----------\nCommand: ");
         scanf("%s", command);
         if (strcmp(command, "add") == 0){
-            scanf("\nEnter the number of rows: %d", n1);
-            scanf("\nand the number of columns: %d", m1);
+            printf("\nEnter the number of rows: ");
+            scanf("%d", &n1);
+            printf("and the number of columns: ");
+            scanf("%d", &m1);
             matrix = input_m(n1, m1);
         }
         if (strcmp(command, "out") == 0){
@@ -26,17 +28,17 @@ int main(){
         }
         if (strcmp(command, "+") == 0){
             printf("\nEnter the number of rows: ");
-            scanf("%d", n2);
-            printf("\nand the number of columns: ");
-            scanf("%d", m2);
+            scanf("%d", &n2);
+            printf("and the number of columns: ");
+            scanf("%d", &m2);
             additional_matrix = input_m(n2, m2);
             matrix = sum_m(matrix, additional_matrix, n1, m1, n2 ,m2);
         }
         if (strcmp(command, "*") == 0){
             printf("\nEnter the number of rows: ");
-            scanf("%d", n2);
-            printf("\nand the number of columns: ");
-            scanf("%d", m2);
+            scanf("%d", &n2);
+            printf("and the number of columns: ");
+            scanf("%d", &m2);
             additional_matrix = input_m(n2, m2);
             matrix = mul_m(matrix, additional_matrix, n1, m1, n2 ,m2);
         }

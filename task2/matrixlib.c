@@ -1,11 +1,10 @@
 #include "matrixlib.h"
 
-
 const int unsigned n = 3;
 const int unsigned m = 3;
 
 void instruction(void){
-    printf("---------\n%s\n-----------", "List of avaliable commands:");
+    printf("-----------\n%s\n-----------", "List of avaliable commands:");
     printf("\n\'add\' - add a new matrix\n");
     printf("\'out\' - output the matrix\n");
     printf("\'+\' - addition of 2 matrices\n");
@@ -56,7 +55,8 @@ double * num_m(double * m_arr){
     num_arr = malloc(n * m * sizeof(double));
 
     double k;
-    printf("\nEnter number: ", &k);
+    printf("\nEnter number: ");
+    scanf("%lf", &k);
 
     for(int i = 0; i < n; i++){
         for(int j = 0; j < m; j++){
