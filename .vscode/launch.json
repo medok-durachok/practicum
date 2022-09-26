@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/prak/practicum",
-      "program": "c:/prak/practicum/build/Debug/outDebug",
+      "cwd": "c:/prak/practicum/task2",
+      "program": "c:/prak/practicum/task2/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
