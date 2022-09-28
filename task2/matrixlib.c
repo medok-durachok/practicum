@@ -3,7 +3,7 @@
 const int unsigned n = 3;
 const int unsigned m = 3;
 
-void instruction(void){
+void instruction(void) {
     printf("-----------\n%s\n-----------", "List of avaliable commands:");
     printf("\'out\' - output the matrix\n");
     printf("\'+\' - addition of 2 matrices\n");
@@ -13,43 +13,43 @@ void instruction(void){
     printf("-----------\n");
 }
 
-double * input_m(int nn, int mm){
+double * input_m(int nn, int mm) {
     double * arr;
     arr = malloc(nn * mm * sizeof(double));
-    for(int i = 0; i < nn; i++){
-        for(int j = 0; j < mm; j++){
+    for(int i = 0; i < nn; i++) {
+        for(int j = 0; j < mm; j++) {
             scanf("%lf", &arr[i * nn + j]);
         }
     }
     return arr;
 }
 
-void output_m(double * m_arr){
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m; j++){
+void output_m(double * m_arr) {
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
             printf("%.2lf\t", m_arr[i * n + j]);
         }
         printf("\n");
     }
 }
 
-double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2){
-    if ((n1 != n2) || (m1 != m2)){
+double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2) {
+    if ((n1 != n2) || (m1 != m2)) {
         printf("\n! The sizes of the matrices do not match !");
         return NULL;
     }
 
     double * sum_arr;
     sum_arr = malloc(n * m * sizeof(double));
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m; j++){
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
             sum_arr[i * n + j] = m1_arr[i * n + j] + m2_arr[i * n + j];
         }
     }
     return sum_arr;
 }
 
-double * num_m(double * m_arr){
+double * num_m(double * m_arr) {
     double * num_arr;
     num_arr = malloc(n * m * sizeof(double));
 
@@ -57,7 +57,7 @@ double * num_m(double * m_arr){
     printf("\nEnter number: ");
     scanf("%lf", &k);
 
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++){
             num_arr[i * n + j] = m_arr[i * n + j] * k;
         }
@@ -65,8 +65,8 @@ double * num_m(double * m_arr){
     return num_arr;
 }
 
-double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2){
-    if(m1 != m2){
+double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2) {
+    if(m1 != m2) {
         printf("\n! The sizes of the matrices do not match !");
         return NULL;
     }
@@ -75,9 +75,9 @@ double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2)
     double * m_arr;
     m_arr = malloc(n1 * k2 * sizeof(double));
     int sum = 0;
-    for(int i = 0; i < n1; i++){
-        for(int k = 0; k < k2; k++){
-            for(int j = 0; j < mm; j++){
+    for(int i = 0; i < n1; i++) {
+        for(int k = 0; k < k2; k++) {
+            for(int j = 0; j < mm; j++) {
                 sum += m1_arr[i * n1 + j] * m2_arr[j * mm + k];
             }
             m_arr[i * n1 + k] = sum;
@@ -88,8 +88,8 @@ double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2)
     return m_arr;
 }
 
-void determinant_gauss(double * m_arr, int nn, int mm){
-    if (mm != nn){
+void determinant_gauss(double * m_arr, int nn, int mm) {
+    if (mm != nn) {
         printf("\n! the matrix is not square !");
         exit;
     }
@@ -97,9 +97,9 @@ void determinant_gauss(double * m_arr, int nn, int mm){
     int minim = INT_MAX, i = 0 , j = 0, l, sq = nn;
     double k = 0, det = 1;
 
-    while(i < sq && j < sq){
-        for(int ii = i; ii < sq; ii++){
-            if(abs(m_arr[ii * sq +j]) < minim){
+    while(i < sq && j < sq) {
+        for(int ii = i; ii < sq; ii++) {
+            if(abs(m_arr[ii * sq +j]) < minim) {
                 minim = abs(m_arr[ii * sq + j]);
                 l = ii;
             }
@@ -107,17 +107,17 @@ void determinant_gauss(double * m_arr, int nn, int mm){
         minim = INT_MAX;
 
         int temp;
-        for(int jj = 0; jj < sq; jj++){
+        for(int jj = 0; jj < sq; jj++) {
             temp = m_arr[i * sq + jj];
             m_arr[i * sq + jj] = m_arr[l * sq + jj];
             m_arr[l * sq + jj] = temp;
         }
 
-        for(int ii = i + 1; ii < sq; ii++){
+        for(int ii = i + 1; ii < sq; ii++) {
             k = m_arr[ii * sq + j] / m_arr[i * sq + j];
             m_arr[ii * sq + j] = 0;
 
-            for(int jj = j + 1; jj < sq; jj++){
+            for(int jj = j + 1; jj < sq; jj++) {
                 m_arr[ii * sq + jj] -= k * m_arr[i * sq + jj];
             }
         }
@@ -125,7 +125,7 @@ void determinant_gauss(double * m_arr, int nn, int mm){
         j++;
     }
 
-    for(int ii = 0; ii < 3; ii++){
+    for(int ii = 0; ii < 3; ii++) {
         det *= m_arr[ii * sq + ii];
     }
 
