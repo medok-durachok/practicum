@@ -8,7 +8,7 @@ const int unsigned m = 3;
 
 int main() {
     char command[6];
-    int n1, m1, n2, m2;
+    int n1, m1;
     double * matrix, * additional_matrix;
     printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
     scanf("%s", command);
@@ -28,25 +28,25 @@ int main() {
         }
         if (strcmp(command, "+") == 0) {
             printf("\nEnter the number of rows: ");
-            scanf("%d", &n2);
+            scanf("%d", &n1);
             printf("and the number of columns: ");
-            scanf("%d", &m2);
-            additional_matrix = input_m(n2, m2);
-            matrix = sum_m(matrix, additional_matrix, n1, m1, n2 ,m2);
+            scanf("%d", &m1);
+            additional_matrix = input_m(n1, m1);
+            matrix = sum_m(matrix, additional_matrix, n, m, n1 ,m1);
         }
         if (strcmp(command, "*") == 0) {
             printf("\nEnter the number of rows: ");
-            scanf("%d", &n2);
+            scanf("%d", &n1);
             printf("and the number of columns: ");
-            scanf("%d", &m2);
-            additional_matrix = input_m(n2, m2);
-            matrix = mul_m(matrix, additional_matrix, n1, m1, n2 ,m2);
+            scanf("%d", &m1);
+            additional_matrix = input_m(n1, m1);
+            matrix = mul_m(matrix, additional_matrix, n, m, n1, m1);
         }
         if (strcmp(command, "num") == 0) {
             matrix = num_m(matrix, n, m);
         }
         if (strcmp(command, "det") == 0) {
-            determinant_gauss(matrix, n1, m1);
+            determinant_gauss(matrix, n, m);
         }
     }
 }
