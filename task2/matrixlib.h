@@ -19,4 +19,4 @@ double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2)
 
 void determinant_gauss(double * m_arr, int nn, int mm);
 
-#endif // MATRIX_LIB_H_INCLUDED
+#endif

@@ -13,16 +13,16 @@ int main(){
         instruction();
     }
 
+    printf("\nEnter the number of rows: ");
+    scanf("%d", &n1);
+    printf("and the number of columns: ");
+    scanf("%d", &m1);
+    matrix = input_m(n1, m1);
+
     while(strcmp(command, "exit") != 0){
         printf("-----------\nCommand: ");
         scanf("%s", command);
-        if (strcmp(command, "add") == 0){
-            printf("\nEnter the number of rows: ");
-            scanf("%d", &n1);
-            printf("and the number of columns: ");
-            scanf("%d", &m1);
-            matrix = input_m(n1, m1);
-        }
+
         if (strcmp(command, "out") == 0){
             output_m(matrix);
         }

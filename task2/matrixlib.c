@@ -5,7 +5,6 @@ const int unsigned m = 3;
 
 void instruction(void){
     printf("-----------\n%s\n-----------", "List of avaliable commands:");
-    printf("\n\'add\' - add a new matrix\n");
     printf("\'out\' - output the matrix\n");
     printf("\'+\' - addition of 2 matrices\n");
     printf("\'*\' - multiplication of 2 matrices\n");
