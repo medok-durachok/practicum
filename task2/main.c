@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+const int unsigned n = 3;
+const int unsigned m = 3;
+
 int main(){
     char command[6];
     int n1, m1, n2, m2;
@@ -13,11 +16,8 @@ int main(){
         instruction();
     }
 
-    printf("\nEnter the number of rows: ");
-    scanf("%d", &n1);
-    printf("and the number of columns: ");
-    scanf("%d", &m1);
-    matrix = input_m(n1, m1);
+    printf("\nFirstly enter new matrix: %d rows and %d columns", n, m);
+    matrix = input_m(n, m);
 
     while(strcmp(command, "exit") != 0){
         printf("-----------\nCommand: ");
