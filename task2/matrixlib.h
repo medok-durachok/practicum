@@ -7,16 +7,16 @@
 
 void instruction(void);
 
-double * input_m(int nn, int mm);
+double * input_m(int n, int m);
 
-void output_m(double * m_arr);
+void output_m(double * m_arr, int n, int m);
 
 double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2);
 
-double * num_m(double * m_arr);
+double * num_m(double * m_arr, int n, int m);
 
 double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2);
 
-void determinant_gauss(double * m_arr, int nn, int mm);
+void determinant_gauss(double * m_arr, int n, int m);
 
 #endif

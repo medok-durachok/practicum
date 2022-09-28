@@ -1,8 +1,5 @@
 #include "matrixlib.h"
 
-const int unsigned n = 3;
-const int unsigned m = 3;
-
 void instruction(void) {
     printf("-----------\n%s\n-----------", "List of avaliable commands:");
     printf("\'out\' - output the matrix\n");
@@ -13,18 +10,18 @@ void instruction(void) {
     printf("-----------\n");
 }
 
-double * input_m(int nn, int mm) {
+double * input_m(int n, int m) {
     double * arr;
-    arr = malloc(nn * mm * sizeof(double));
-    for(int i = 0; i < nn; i++) {
-        for(int j = 0; j < mm; j++) {
-            scanf("%lf", &arr[i * nn + j]);
+    arr = malloc(n * m * sizeof(double));
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            scanf("%lf", &arr[i * n + j]);
         }
     }
     return arr;
 }
 
-void output_m(double * m_arr) {
+void output_m(double * m_arr, int n, int m) {
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
             printf("%.2lf\t", m_arr[i * n + j]);
@@ -39,6 +36,9 @@ double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2)
         return NULL;
     }
 
+    int n = n1;
+    int m = m1;
+
     double * sum_arr;
     sum_arr = malloc(n * m * sizeof(double));
     for(int i = 0; i < n; i++) {
@@ -49,7 +49,7 @@ double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2)
     return sum_arr;
 }
 
-double * num_m(double * m_arr) {
+double * num_m(double * m_arr, int n, int m) {
     double * num_arr;
     num_arr = malloc(n * m * sizeof(double));
 
@@ -88,18 +88,18 @@ double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2)
     return m_arr;
 }
 
-void determinant_gauss(double * m_arr, int nn, int mm) {
-    if (mm != nn) {
+void determinant_gauss(double * m_arr, int n, int m) {
+    if (m != n) {
         printf("\n! the matrix is not square !");
         exit;
     }
 
-    int minim = INT_MAX, i = 0 , j = 0, l, sq = nn;
+    int minim = INT_MAX, i = 0 , j = 0, l, sq = n;
     double k = 0, det = 1;
 
     while(i < sq && j < sq) {
         for(int ii = i; ii < sq; ii++) {
-            if(abs(m_arr[ii * sq +j]) < minim) {
+            if(abs(m_arr[ii * sq + j]) < minim) {
                 minim = abs(m_arr[ii * sq + j]);
                 l = ii;
             }
