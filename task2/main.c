@@ -1,52 +1,56 @@
 #include "matrixlib.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-const int unsigned n = 3;
-const int unsigned m = 3;
+const int unsigned n = 2;
+const int unsigned m = 2;
 
 int main() {
-    char command[6];
-    int n1, m1;
-    double * matrix, * additional_matrix;
-    printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
-    scanf("%s", command);
-    if(strcmp(command, "0") == 0) {
-        instruction();
-    }
+        int command;
+        int n1 = n, m1 = m, m2;
+        char c;
+        double det;
+        double * matrix, * additional_matrix;
+        printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
+        scanf("%d", &command);
+        if(command == 0) {
+                instruction();
+        }
 
-    printf("\nFirstly enter new matrix: %d rows and %d columns: ", n, m);
-    matrix = input_m(n, m);
+        printf("\nFirstly enter new matrix with %d rows and %d columns: \n", n, m);
+        matrix = input_m(n, m);
 
-    while(strcmp(command, "exit") != 0) {
-        printf("-----------\nCommand: ");
-        scanf("%s", command);
+        while(command != 100) {
+                printf("\n-----------\nCommand #: ");
+                /*while(!(isdigit(c = getchar()))) {
+                        printf("\nWrong input format. Enter number: ");
+                }
+                command = atoi(c);*/
+                scanf("%d", &command);
 
-        if (strcmp(command, "out") == 0) {
-            output_m(matrix, n, m);
+                switch(command){
+                        case 0: 
+                                instruction();
+                                break;
+                        case 1:
+                                output_m(matrix, n1, m1);
+                                break;
+                        case 2:
+                                matrix = sum_m(matrix, n1, m1);
+                                break;
+                        case 3:
+                                matrix = mul_m(matrix, n1, m1, &m2);
+                                m1 = m2;
+                                break;
+                        case 4:
+                                matrix = num_m(matrix, n1, m1);
+                                break;
+                        case 5:
+                                det = determinant_gauss(matrix, n1, m1);
+                                printf("%.2lf", det);
+                                break;
+                        default: 
+                                printf("error");
+                                break;
+                }    
         }
-        if (strcmp(command, "+") == 0) {
-            printf("\nEnter the number of rows: ");
-            scanf("%d", &n1);
-            printf("and the number of columns: ");
-            scanf("%d", &m1);
-            additional_matrix = input_m(n1, m1);
-            matrix = sum_m(matrix, additional_matrix, n, m, n1 ,m1);
-        }
-        if (strcmp(command, "*") == 0) {
-            printf("\nEnter the number of rows: ");
-            scanf("%d", &n1);
-            printf("and the number of columns: ");
-            scanf("%d", &m1);
-            additional_matrix = input_m(n1, m1);
-            matrix = mul_m(matrix, additional_matrix, n, m, n1, m1);
-        }
-        if (strcmp(command, "num") == 0) {
-            matrix = num_m(matrix, n, m);
-        }
-        if (strcmp(command, "det") == 0) {
-            determinant_gauss(matrix, n, m);
-        }
-    }
+        free(matrix);
 }

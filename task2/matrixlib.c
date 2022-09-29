@@ -1,27 +1,30 @@
 #include "matrixlib.h"
 
 void instruction(void) {
-    printf("-----------\n%s\n-----------", "List of avaliable commands:");
-    printf("\'out\' - output the matrix\n");
-    printf("\'+\' - addition of 2 matrices\n");
-    printf("\'*\' - multiplication of 2 matrices\n");
-    printf("\'num\' - multiplying a matrix by a number\n");
-    printf("\'det\' - calculation of the determinant of the matrix\n");
+    printf("\n-----------\n%s\n-----------\n", "List of avaliable commands:");
+    printf("1. output the matrix\n");
+    printf("2. addition of 2 matrices\n");
+    printf("3. multiplication of 2 matrices\n");
+    printf("4. multiplying a matrix by a number\n");
+    printf("5. calculation of the determinant of the matrix\n");
     printf("-----------\n");
 }
 
 double * input_m(int n, int m) {
+    printf("-----------\nEntering a matrix: \n");
     double * arr;
+    char c;
     arr = malloc(n * m * sizeof(double));
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
-            scanf("%lf", &arr[i * n + j]);
+           scanf("%lf", &arr[i * n + j]);
         }
     }
     return arr;
 }
 
 void output_m(double * m_arr, int n, int m) {
+    printf("-----------\nPrinting a matrix: \n");
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
             printf("%.2lf\t", m_arr[i * n + j]);
@@ -30,11 +33,18 @@ void output_m(double * m_arr, int n, int m) {
     }
 }
 
-double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2) {
+double * sum_m(double * m1_arr, int n1, int m1) {
+    int n2, m2;
+    printf("-----------\nMatrix addition\n");
+    printf("\nEnter the number of rows: ");
+    scanf("%d", &n1);
+    printf("and the number of columns: ");
+    scanf("%d", &m1);
     if ((n1 != n2) || (m1 != m2)) {
         printf("\n! The sizes of the matrices do not match !");
         return NULL;
     }
+    double * m2_arr = input_m(n2, m2);
 
     int n = n1;
     int m = m1;
@@ -50,7 +60,9 @@ double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2)
 }
 
 double * num_m(double * m_arr, int n, int m) {
+    printf("-----------\nMultiplying a matrix by a number:\n");
     double * num_arr;
+    char c;
     num_arr = malloc(n * m * sizeof(double));
 
     double k;
@@ -65,11 +77,21 @@ double * num_m(double * m_arr, int n, int m) {
     return num_arr;
 }
 
-double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2) {
+double * mul_m(double * m1_arr, int n1, int m1, int * k) {
+    printf("-----------\nMultiplying a matrix by a matrix:\n");
+
+    int m2, k2;
+    printf("\nEnter the number of rows: ");
+    scanf("%d", &m2);
+    printf("and the number of columns: ");
+    scanf("%d", &k2);
+
     if(m1 != m2) {
         printf("\n! The sizes of the matrices do not match !");
         return NULL;
     }
+    
+    double * m2_arr = input_m(m2, k2);
     int mm = m1;
 
     double * m_arr;
@@ -84,14 +106,33 @@ double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2)
             sum = 0;
         }
     }
+    * k = k2;
 
-    return m_arr;
+    m1_arr = realloc(m1_arr, n1 * k2 * sizeof(double));
+    for(int i = 0; i < n1; i++){
+        for(int j = 0; j < k2; j++){
+            m1_arr[i * n1 + j] = m_arr[i * n1 + j];
+        }
+    }
+    free(m2_arr);
+    free(m_arr);
+
+    return m1_arr;
 }
 
-void determinant_gauss(double * m_arr, int n, int m) {
+double determinant_gauss(double * m_arr, int n, int m) {
+    printf("-----------\nCalculation of the determinant of the matrix by the Gauss method:\n");
     if (m != n) {
         printf("\n! the matrix is not square !");
         exit;
+    }
+
+    double * additional_m = malloc(n * m * sizeof(double));
+
+    for(int ii = 0; ii < n; ii++){
+        for(int jj = 0; jj < m; jj++){
+            additional_m[ii * n + jj] = m_arr[ii * n + jj];
+        }
     }
 
     int minim = INT_MAX, i = 0 , j = 0, l, sq = n;
@@ -99,26 +140,29 @@ void determinant_gauss(double * m_arr, int n, int m) {
 
     while(i < sq && j < sq) {
         for(int ii = i; ii < sq; ii++) {
-            if(abs(m_arr[ii * sq + j]) < minim) {
-                minim = abs(m_arr[ii * sq + j]);
+            if(abs(additional_m[ii * sq + j]) < minim) {
+                minim = abs(additional_m[ii * sq + j]);
                 l = ii;
             }
         }
         minim = INT_MAX;
 
         int temp;
-        for(int jj = 0; jj < sq; jj++) {
-            temp = m_arr[i * sq + jj];
-            m_arr[i * sq + jj] = m_arr[l * sq + jj];
-            m_arr[l * sq + jj] = temp;
+        if(l != i) {
+            det *= -1;
+            for(int jj = 0; jj < sq; jj++) {
+                temp = additional_m[i * sq + jj];
+                additional_m[i * sq + jj] = additional_m[l * sq + jj];
+                additional_m[l * sq + jj] = temp;
+            }
         }
 
         for(int ii = i + 1; ii < sq; ii++) {
-            k = m_arr[ii * sq + j] / m_arr[i * sq + j];
-            m_arr[ii * sq + j] = 0;
+            k = additional_m[ii * sq + j] / additional_m[i * sq + j];
+            additional_m[ii * sq + j] = 0;
 
             for(int jj = j + 1; jj < sq; jj++) {
-                m_arr[ii * sq + jj] -= k * m_arr[i * sq + jj];
+                additional_m[ii * sq + jj] -= k * additional_m[i * sq + jj];
             }
         }
         i++;
@@ -126,8 +170,7 @@ void determinant_gauss(double * m_arr, int n, int m) {
     }
 
     for(int ii = 0; ii < 3; ii++) {
-        det *= m_arr[ii * sq + ii];
+        det *= additional_m[ii * sq + ii];
     }
-
-    printf("%.2lf\n", det);
+    return(det);
 }
