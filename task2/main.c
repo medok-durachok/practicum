@@ -6,7 +6,7 @@ const int unsigned m = 2;
 int main() {
     int command;
     int n1 = n, m1 = m, m2;
-    char c[256], flag = 0;
+    char c[256], flag = 0, end_flag = 0;
     double det;
     double * matrix, * additional_matrix;
     printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
@@ -18,7 +18,7 @@ int main() {
     printf("\nFirstly enter new matrix with %d rows and %d columns: \n", n, m);
     matrix = input_m(n, m);
 
-    while(command != 100) {
+    do {
         printf("\n-----------\nCommand #: ");
         do{
             scanf("%s", &c);
@@ -48,10 +48,15 @@ int main() {
                 det = determinant_gauss(matrix, n1, m1);
                 printf("%.2lf", det);
                 break;
+            case 6:
+                end_flag = 1;
+                printf("Exit from the Calculator..");
+                break;
             default: 
-                printf("error");
+                printf("No command found");
                 break;
         }    
     }
+    while(end_flag == 0);
     free(matrix);
 }
