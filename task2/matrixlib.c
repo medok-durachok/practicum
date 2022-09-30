@@ -1,12 +1,25 @@
 #include "matrixlib.h"
 
 int check_input(int err, char * c) {
-    if(err == 1){
-        if(isdigit(* c)) {
+    if(err == 1) {
+        if(isdigit(*c)) {
             return 0;
         } else {
             printf("\nWrong input format. Enter number: ");
             return 1;
+        }
+    }
+    if(err == 2) {
+        if(!isdigit(*c)) {
+            printf("\nWrong input format. Enter number: ");
+            return 1;
+        } else {
+            if(atof(c) - atoi(c) > 0) {
+                printf("\nWrong input format. Enter number: ");
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 }
@@ -31,7 +44,7 @@ double * input_m(int n, int m) {
         for(int j = 0; j < m; j++) {
             do{
                 scanf("%s", &c);
-                flag = check_input(1, &c);
+                flag = check_input(1, c);
             }
             while (flag == 1);
             flag = 0;
@@ -51,13 +64,30 @@ void output_m(double * m_arr, int n, int m) {
     }
 }
 
+void rows_cols(int * n, int * m) {
+    char c[265]; int flag = 0;
+    printf("\nEnter the number of rows: ");
+    do{
+        scanf("%s", &c);
+        flag = check_input(2, c);
+    }
+    while (flag == 1);
+    * n  = atof(c);
+    printf("and the number of columns: ");
+    do{
+        scanf("%s", &c);
+        flag = check_input(2, c);
+    }
+    while (flag == 1);
+    * m  = atof(c);
+}
+
 double * sum_m(double * m1_arr, int n1, int m1) {
     int n2, m2;
     printf("-----------\nMatrix addition\n");
-    printf("\nEnter the number of rows: ");
-    scanf("%d", &n1);
-    printf("and the number of columns: ");
-    scanf("%d", &m1);
+
+    rows_cols(&n2, &m2);
+
     if ((n1 != n2) || (m1 != m2)) {
         printf("\n! The sizes of the matrices do not match !");
         return NULL;
@@ -77,32 +107,11 @@ double * sum_m(double * m1_arr, int n1, int m1) {
     return sum_arr;
 }
 
-double * num_m(double * m_arr, int n, int m) {
-    printf("-----------\nMultiplying a matrix by a number:\n");
-    double * num_arr;
-    char c;
-    num_arr = malloc(n * m * sizeof(double));
-
-    double k;
-    printf("\nEnter number: ");
-    scanf("%lf", &k);
-
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++){
-            num_arr[i * n + j] = m_arr[i * n + j] * k;
-        }
-    }
-    return num_arr;
-}
-
 double * mul_m(double * m1_arr, int n1, int m1, int * k) {
     printf("-----------\nMultiplying a matrix by a matrix:\n");
 
     int m2, k2;
-    printf("\nEnter the number of rows: ");
-    scanf("%d", &m2);
-    printf("and the number of columns: ");
-    scanf("%d", &k2);
+    rows_cols(&m2, &k2);
 
     if(m1 != m2) {
         printf("\n! The sizes of the matrices do not match !");
@@ -136,6 +145,29 @@ double * mul_m(double * m1_arr, int n1, int m1, int * k) {
     free(m_arr);
 
     return m1_arr;
+}
+
+double * num_m(double * m_arr, int n, int m) {
+    printf("-----------\nMultiplying a matrix by a number:\n");
+    double * num_arr;
+    char c; int flag = 0;
+    num_arr = malloc(n * m * sizeof(double));
+
+    double k;
+    printf("\nEnter number: ");
+    do{
+        scanf("%s", &c);
+        flag = check_input(1, &c);
+    }
+    while (flag == 1);
+    k = atof(&c);
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++){
+            num_arr[i * n + j] = m_arr[i * n + j] * k;
+        }
+    }
+    return num_arr;
 }
 
 double determinant_gauss(double * m_arr, int n, int m) {

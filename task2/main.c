@@ -6,7 +6,7 @@ const int unsigned m = 2;
 int main() {
     int command;
     int n1 = n, m1 = m, m2;
-    char c;
+    char c[256], flag = 0;
     double det;
     double * matrix, * additional_matrix;
     printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
@@ -20,11 +20,12 @@ int main() {
 
     while(command != 100) {
         printf("\n-----------\nCommand #: ");
-        /*while(!(isdigit(c = getchar()))) {
-                printf("\nWrong input format. Enter number: ");
+        do{
+            scanf("%s", &c);
+            flag = check_input(2, &c);
         }
-        command = atoi(c);*/
-        scanf("%d", &command);
+        while (flag == 1);
+        command = atoi(&c);
 
         switch(command){
             case 0: 
