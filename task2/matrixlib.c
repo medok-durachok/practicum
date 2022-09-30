@@ -1,5 +1,16 @@
 #include "matrixlib.h"
 
+int check_input(int err, char * c) {
+    if(err == 1){
+        if(isdigit(* c)) {
+            return 0;
+        } else {
+            printf("\nWrong input format. Enter number: ");
+            return 1;
+        }
+    }
+}
+
 void instruction(void) {
     printf("\n-----------\n%s\n-----------\n", "List of avaliable commands:");
     printf("1. output the matrix\n");
@@ -13,11 +24,18 @@ void instruction(void) {
 double * input_m(int n, int m) {
     printf("-----------\nEntering a matrix: \n");
     double * arr;
-    char c;
+    char c[256];
+    int flag = 0;
     arr = malloc(n * m * sizeof(double));
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
-           scanf("%lf", &arr[i * n + j]);
+            do{
+                scanf("%s", &c);
+                flag = check_input(1, &c);
+            }
+            while (flag == 1);
+            flag = 0;
+            arr[i * n + j] = atof(c);
         }
     }
     return arr;
