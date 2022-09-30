@@ -6,7 +6,7 @@ const int unsigned m = 2;
 int main() {
     int command;
     int n1 = n, m1 = m, m2;
-    char c[256], flag = 0, end_flag = 0;
+    char c[256]; int flag = 0, end_flag = 0;
     double det;
     double * matrix, * additional_matrix;
     printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
