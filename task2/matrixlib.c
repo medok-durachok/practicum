@@ -106,7 +106,13 @@ double * sum_m(double * m1_arr, int n1, int m1) {                       //сум
     }
     free(m2_arr);
 
-    return sum_arr;
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m; j++){
+            m1_arr[i * n + j] = sum_arr[i * n + j];
+        }
+    }
+    free(sum_arr);
+    return m1_arr;
 }
 
 double * mul_m(double * m1_arr, int n1, int m1, int * k) {                      //перемножение матриц
@@ -168,7 +174,14 @@ double * num_m(double * m_arr, int n, int m) {
             num_arr[i * n + j] = m_arr[i * n + j] * k;
         }
     }
-    return num_arr;
+
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m; j++){
+            m_arr[i * n + j] = num_arr[i * n + j];
+        }
+    }
+    free(num_arr);
+    return m_arr;
 }
 
 double determinant_gauss(double * m_arr, int n, int m) {
@@ -191,7 +204,7 @@ double determinant_gauss(double * m_arr, int n, int m) {
 
     while(i < sq && j < sq) {
         for(int ii = i; ii < sq; ii++) {                                   //находим минимальный элемент в j-ом столбце
-            if(abs(additional_m[ii * sq + j]) < minim) {
+            if(abs(additional_m[ii * sq + j]) < minim && additional_m[ii * sq + j] != 0) {
                 minim = abs(additional_m[ii * sq + j]);
                 l = ii;
             }
