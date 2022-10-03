@@ -219,10 +219,15 @@ double determinant_gauss(double * m_arr, int n, int m) {
         i++;
         j++;
     }
-    
+
     for(int ii = 0; ii < sq; ii++) {
         det *= additional_m[ii * sq + ii];
     }
+
+    if(det == -0) {
+        det = 0;
+    }
+
     free(additional_m);
     return(det);
 }

@@ -46,7 +46,7 @@ int main() {
                 break;
             case 5:
                 det = determinant_gauss(matrix, n1, m1);
-                printf("%.2lf", det);
+                printf("Determinant of matrix is %.2lf", det);
                 break;
             case 6:
                 end_flag = 1;
