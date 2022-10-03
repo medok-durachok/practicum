@@ -32,6 +32,7 @@ void instruction(void) {                                     //описание 
     printf("4. multiplying a matrix by a number\n");
     printf("5. calculation of the determinant of the matrix\n");
     printf("6. exit\n");
+    printf("\nIf you made format mistakes entering a matrix, then you are able to correct them. \nJust enter right numbers instead of mistaken ones, not all the matrix again.\n");
     printf("-----------\n");
 }
 
@@ -43,8 +44,8 @@ double * input_m(int n, int m) {                                //ввод ма�
     arr = malloc(n * m * sizeof(double));
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
-            do{
-                scanf("%s", &c);
+            do {
+                scanf("%s", c);
                 flag = check_input(1, c);
             }
             while (flag == 1);
@@ -68,18 +69,16 @@ void output_m(double * m_arr, int n, int m) {                       //вывод
 void rows_cols(int * n, int * m) {                                  //ввод кол-ва столбцов и строк для доп. матрицы
     char c[265]; int flag = 0;
     printf("\nEnter the number of rows: ");
-    do{
-        scanf("%s", &c);
+    do {
+        scanf("%s", c);
         flag = check_input(2, c);
-    }
-    while (flag == 1);
+    } while (flag == 1);
     * n  = atof(c);
     printf("and the number of columns: ");
-    do{
-        scanf("%s", &c);
+    do {
+        scanf("%s", c);
         flag = check_input(2, c);
-    }
-    while (flag == 1);
+    } while (flag == 1);
     * m  = atof(c);
 }
 
@@ -158,11 +157,10 @@ double * num_m(double * m_arr, int n, int m) {
 
     double k;
     printf("\nEnter number: ");
-    do{
+    do {
         scanf("%s", &c);
         flag = check_input(1, &c);
-    }
-    while (flag == 1);
+    } while (flag == 1);
     k = atof(&c);
 
     for(int i = 0; i < n; i++) {
@@ -221,11 +219,10 @@ double determinant_gauss(double * m_arr, int n, int m) {
         i++;
         j++;
     }
-
-    for(int ii = 0; ii < 3; ii++) {
+    
+    for(int ii = 0; ii < sq; ii++) {
         det *= additional_m[ii * sq + ii];
     }
     free(additional_m);
-
     return(det);
 }

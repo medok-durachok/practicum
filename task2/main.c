@@ -10,8 +10,8 @@ int main() {
     double det;
     double * matrix, * additional_matrix;
     printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
-    scanf("%d", &command);
-    if(command == 0) {
+    scanf("%s", c);
+    if(strcmp(c, "0") == 0) {
         instruction();
     }
 
@@ -20,14 +20,14 @@ int main() {
 
     do {
         printf("\n-----------\nCommand #: ");
-        do{
-            scanf("%s", &c);
-            flag = check_input(2, &c);
+        do {
+            scanf("%s", c);
+            flag = check_input(2, c);
         }
         while (flag == 1);
-        command = atoi(&c);
+        command = atoi(c);
 
-        switch(command){
+        switch(command) {
             case 0: 
                 instruction();
                 break;
@@ -50,13 +50,12 @@ int main() {
                 break;
             case 6:
                 end_flag = 1;
-                printf("Exit from the Calculator..");
+                printf("Exit from the Calculator..\n");
                 break;
             default: 
                 printf("No command found");
                 break;
         }    
-    }
-    while(end_flag == 0);
+    } while(end_flag == 0);
     free(matrix);
 }

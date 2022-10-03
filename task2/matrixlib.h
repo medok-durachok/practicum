@@ -5,6 +5,7 @@
 #include <math.h>
 #include <limits.h>
 #include <ctype.h>
+#include <string.h>
 
 int check_input(int err, char * c);
 
