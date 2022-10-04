@@ -1,11 +1,11 @@
 #include "matrixlib.h"
 
-const int unsigned n = 2;
-const int unsigned m = 2;
+//const int unsigned n = 2;
+//const int unsigned m = 2;
 
 int main() {
     int command;
-    int n1 = n, m1 = m, m2;
+    int n1, m1, m2;
     char c[256]; int flag = 0, end_flag = 0;
     double det;
     double * matrix, * additional_matrix;
@@ -15,8 +15,9 @@ int main() {
         instruction();
     }
 
-    printf("\nFirstly enter new matrix with %d rows and %d columns: \n", n, m);
-    matrix = input_m(n, m);
+    printf("\nFirstly enter new matrix:");
+    rows_cols(&n1, &m1);
+    matrix = input_m(n1, m1);
 
     do {
         printf("\n-----------\nCommand #: ");
