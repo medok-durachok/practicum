@@ -37,12 +37,26 @@ void push(List **head, char * s) {
     (*head) = tmp;
 }
 
-void print(List *head){
+void print(List *head) {
     List *p = head;
     while(p != NULL){
         printf("%s\n", p -> s);
         p = p -> next;
     }
+}
+
+void delete(List **head) {
+    List *p = NULL;
+    while((*head) -> next){
+        p = *head;
+        (*head) = (*head) -> next;
+        free(p);
+    }
+    free(*head);
+}
+
+void sort(List **head) {
+
 }
 
 int main() {
@@ -52,6 +66,7 @@ int main() {
         push(&head, s);
         s = get_S();
     }
+    sort(head);
     print(head);
 
     return 0;
