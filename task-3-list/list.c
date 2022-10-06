@@ -68,6 +68,7 @@ void delete(List **head) {
 
 void swap(List **a, List **b, List ** pa, List ** pb){
     List * tmp;
+
     tmp = (*pa) -> next;
     (*pa) -> next = (*pb) -> next;
     (*pb) -> next = tmp;
@@ -83,11 +84,11 @@ void swap(List **a, List **b, List ** pa, List ** pb){
 void swapd(List **a, List **b){
     char * tmp;
 
-    printf("%s %s\n*\n", (*a) -> s, (*b) -> s);
+    //printf("%s %s\n*\n", (*a) -> s, (*b) -> s);
     tmp = (*a) -> s;
     (*a) -> s = (*b) -> s;
     (*b) -> s = tmp;
-    printf("%s %s\n", (*a) -> s, (*b) -> s);
+    //printf("%s %s\n", (*a) -> s, (*b) -> s);
 }
 
 
@@ -96,26 +97,29 @@ List *part(List *head, List *tail){
     List *prev1, *prev2;
     List *q = head;
 
-    //prev1 = head;
+   prev1 = head;
+   prev2 = curr;
 
     while(curr != NULL && curr != tail){
         if(strcmp(curr -> s, tail -> s) < 0){
             q = head;
-            printf("%s*\n", q -> s);
+            //printf("%s*\n", q -> s);
             if(strcmp(head -> s, curr -> s) != 0){
-                swapd(&head, &curr);
+                //swapd(&head, &curr);
+                swap(&head, &curr, &prev1, &prev2);
             }
-            //swap(&head, &curr, &prev1, &prev2);
-           // prev1 -> next = head;
+            prev1 = head;
             head = head -> next;
+            printf("%s %s\n*\n", prev1 -> s, head -> s);
         }
-        //prev2 -> next = curr;
+        prev2 = curr;
         curr = curr -> next;
+        printf("%s %s\n**\n", prev2 -> s, curr -> s);
     }
 
     if(strcmp(head -> s, tail -> s) != 0){
-       swapd(&head, &tail);
-   // swap(&head, &tail, &prev1, &prev2);
+       //swapd(&head, &tail);
+       swap(&head, &tail, &prev1, &prev2);
     }
     return(q);
 }
