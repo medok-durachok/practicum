@@ -68,45 +68,71 @@ void delete(List **head) {
 
 void swap(List **a, List **b, List ** pa, List ** pb){
     List * tmp;
-    tmp = (*pa);
-    (*pa) = (*pb);
-    (*pb) = tmp;
+    tmp = (*pa) -> next;
+    (*pa) -> next = (*pb) -> next;
+    (*pb) -> next = tmp;
 
-    tmp = (*a) -> next;
-    (*a) -> next = (*b) -> next;
-    (*b) -> next = tmp;
+    printf("%s %s\n*\n", (*a) -> s, (*b) -> s);
+
+    tmp = (*a);
+    (*a) = (*b);
+    (*b) = tmp;
+    printf("%s %s\n", (*a) -> s, (*b) -> s);
 }
+
+void swapd(List **a, List **b){
+    char * tmp;
+
+    printf("%s %s\n*\n", (*a) -> s, (*b) -> s);
+    tmp = (*a) -> s;
+    (*a) -> s = (*b) -> s;
+    (*b) -> s = tmp;
+    printf("%s %s\n", (*a) -> s, (*b) -> s);
+}
+
 
 List *part(List *head, List *tail){
     List *curr = head;
-    List *prev1 = head -> next, *prev2;
+    List *prev1, *prev2;
     List *q = head;
 
+    //prev1 = head;
+
     while(curr != NULL && curr != tail){
-        if(strcmp(curr -> s, tail -> s) > 0){
+        if(strcmp(curr -> s, tail -> s) < 0){
             q = head;
-            swap(&head, &curr, &prev1, &prev2);
-            prev1 = head;
+            printf("%s*\n", q -> s);
+            if(strcmp(head -> s, curr -> s) != 0){
+                swapd(&head, &curr);
+            }
+            //swap(&head, &curr, &prev1, &prev2);
+           // prev1 -> next = head;
             head = head -> next;
         }
-        prev2 -> next = curr;
+        //prev2 -> next = curr;
         curr = curr -> next;
     }
 
-    swap(&head, &tail, &prev1, &prev2); 
+    if(strcmp(head -> s, tail -> s) != 0){
+       swapd(&head, &tail);
+   // swap(&head, &tail, &prev1, &prev2);
+    }
     return(q);
 }
 
 void sort(List **head, List **tail) {
-    if((*head) != (*tail)){
-        List *q = part((*head), (*tail));
-        if (q != NULL && q -> next != NULL) {
-            sort(&(q -> next), tail);
-        }
-        if (q != NULL && (*head) != q) {
-            sort(head, &q);
-        }
+    if ((*head) == (*tail)) {
+        return;
     }
+
+    List *q = part((*head), (*tail));
+    if (q != NULL && q -> next != NULL) {
+        sort(&(q -> next), tail);
+    }
+    if (q != NULL && (*head) != q) {
+        sort(head, &q);
+    }
+
 }
 
 int main() {
@@ -118,6 +144,7 @@ int main() {
         s = get_S();
     }
     tail = getTail(head);
+  //  printf("%s\n", tail -> s);
     sort(&head, &tail);
     print(head);
 
