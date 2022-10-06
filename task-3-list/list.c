@@ -30,6 +30,17 @@ char * get_S(void) {
     return NULL;
 }
 
+
+List * getTail(List *head) {
+    if (head == NULL) {
+        return NULL;
+    }
+    while (head->next) {
+        head = head->next;
+    }
+    return head;
+}
+
 void push(List **head, char * s) {
     List *tmp = (List*) malloc(sizeof(List));
     tmp -> s = s;
@@ -55,18 +66,59 @@ void delete(List **head) {
     free(*head);
 }
 
-void sort(List **head) {
+void swap(List **a, List **b, List ** pa, List ** pb){
+    List * tmp;
+    tmp = (*pa);
+    (*pa) = (*pb);
+    (*pb) = tmp;
 
+    tmp = (*a) -> next;
+    (*a) -> next = (*b) -> next;
+    (*b) -> next = tmp;
+}
+
+List *part(List *head, List *tail){
+    List *curr = head;
+    List *prev1 = head -> next, *prev2;
+    List *q = head;
+
+    while(curr != NULL && curr != tail){
+        if(strcmp(curr -> s, tail -> s) > 0){
+            q = head;
+            swap(&head, &curr, &prev1, &prev2);
+            prev1 = head;
+            head = head -> next;
+        }
+        prev2 -> next = curr;
+        curr = curr -> next;
+    }
+
+    swap(&head, &tail, &prev1, &prev2); 
+    return(q);
+}
+
+void sort(List **head, List **tail) {
+    if((*head) != (*tail)){
+        List *q = part((*head), (*tail));
+        if (q != NULL && q -> next != NULL) {
+            sort(&(q -> next), tail);
+        }
+        if (q != NULL && (*head) != q) {
+            sort(head, &q);
+        }
+    }
 }
 
 int main() {
     char *s = get_S();
     List *head = NULL;
+    List *tail = NULL;
     while(strcmp(s, END_WORD) != 0){
         push(&head, s);
         s = get_S();
     }
-    //sort(head);
+    tail = getTail(head);
+    sort(&head, &tail);
     print(head);
 
     return 0;
