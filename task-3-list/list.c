@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define ADD_M 10
-#define END_WORD "end"
+#define END_WORD ""
 
 typedef struct list {
 	char * s;
@@ -66,7 +66,7 @@ int main() {
         push(&head, s);
         s = get_S();
     }
-    sort(head);
+    //sort(head);
     print(head);
 
     return 0;
