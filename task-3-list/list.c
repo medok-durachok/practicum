@@ -10,6 +10,18 @@ typedef struct list {
 	struct list * next;
 } List;
 
+char * throwException(void) {
+    char * c;
+    c = malloc(ADD_M);
+    printf("Wrong input. Try again (y/n): ");
+    while(fgets(c, 256, stdin)) {
+        return c;
+    }
+   // if(strcmp(c, "y") == 0 || strcmp(c, "n") == 0) {
+        //break;
+   // }
+    return NULL;
+}
 char * get_S(void) {
     int n, k = 0;
     char * s = malloc(ADD_M);
@@ -82,7 +94,7 @@ void sort(List **head) {
 }
 
 int main() {
-    int flag = 0; char *c; List *head;
+    int flag = 0; char *c = malloc(ADD_M); List *head;
     do {
         printf("-----------\n%s\n", "Enter the words, each from a new line. To stop entering, leave the line empty.");
         head = NULL;
@@ -99,19 +111,23 @@ int main() {
         }
         printf("\n-----------\n%s\n", "Sort another one list? (y/n): ");
         while(fgets(c, 256, stdin)) {
-            if((c[0] != 'n') && (c[0] != 'y')) {
+          /* if((c[0] != 'n') && (c[0] != 'y')) {
                 printf("Wrong input. Try again (y/n): ");
                 //
-            }
-
+            }*/
+        exc:
             if(c[0] == 'n' && c[1] == '\n') {
                 if(head != NULL) delete(&head);
                 flag = 1;
                 printf("Exit..\n");
                 break;
-            } else {
+            }
+            if(c[0] == 'y' && c[1] == '\n') {
                 delete(&head);
                 break;
+            } else {
+                c = throwException();
+                goto exc;
             }
         }
 
