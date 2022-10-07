@@ -66,90 +66,59 @@ void delete(List **head) {
     free(*head);
 }
 
-void swap(List **a, List **b, List ** pa, List ** pb){
-    List * tmp;
-
-    tmp = (*pa) -> next;
-    (*pa) -> next = (*pb) -> next;
-    (*pb) -> next = tmp;
-
-    printf("%s %s\n*\n", (*a) -> s, (*b) -> s);
-
-    tmp = (*a);
-    (*a) = (*b);
-    (*b) = tmp;
-    printf("%s %s\n", (*a) -> s, (*b) -> s);
+List * previous(List * head, List **current) {
+    List * prev = head;
+    while(prev -> next != *current) {
+        prev = prev -> next;
+    }
+    return prev;
 }
 
-void swapd(List **a, List **b){
-    char * tmp;
-
-    //printf("%s %s\n*\n", (*a) -> s, (*b) -> s);
-    tmp = (*a) -> s;
-    (*a) -> s = (*b) -> s;
-    (*b) -> s = tmp;
-    //printf("%s %s\n", (*a) -> s, (*b) -> s);
-}
-
-
-List *part(List *head, List *tail){
-    List *curr = head;
-    List *prev1, *prev2;
-    List *q = head;
-
-   prev1 = head;
-   prev2 = curr;
-
-    while(curr != NULL && curr != tail){
-        if(strcmp(curr -> s, tail -> s) < 0){
-            q = head;
-            //printf("%s*\n", q -> s);
-            if(strcmp(head -> s, curr -> s) != 0){
-                //swapd(&head, &curr);
-                swap(&head, &curr, &prev1, &prev2);
-            }
-            prev1 = head;
-            head = head -> next;
-            printf("%s %s\n*\n", prev1 -> s, head -> s);
+void insert(List *ins, List **sorted) {
+    //printf("%s\n", ins -> s);
+    if((*sorted) == NULL || (strcmp((*sorted) -> s, ins -> s) > 0)){
+        ins -> next = (*sorted);
+        (*sorted) = ins;
+        //printf("%s %s\n*\n", (*sorted) -> s, ins -> s);
+    } else {
+        List *p = (*sorted);
+        while((p -> next != NULL)&& (strcmp(p -> next -> s, ins -> s) < 0)) {
+            p = p -> next;
         }
-        prev2 = curr;
-        curr = curr -> next;
-        printf("%s %s\n**\n", prev2 -> s, curr -> s);
+        ins -> next = p -> next;
+        p -> next = ins;
+        //printf("%s %s\n**\n", p -> s, ins -> s);
     }
-
-    if(strcmp(head -> s, tail -> s) != 0){
-       //swapd(&head, &tail);
-       swap(&head, &tail, &prev1, &prev2);
-    }
-    return(q);
 }
 
-void sort(List **head, List **tail) {
-    if ((*head) == (*tail)) {
-        return;
-    }
+void sort(List **head) {
+    //printf("%s\n", (*head) -> s);
+    List * curr = (*head);
+    List *sorted = NULL;
 
-    List *q = part((*head), (*tail));
-    if (q != NULL && q -> next != NULL) {
-        sort(&(q -> next), tail);
+    while (curr != NULL)
+    {
+        List *next_el = curr -> next;
+        insert(curr, &sorted);
+        curr = next_el;
     }
-    if (q != NULL && (*head) != q) {
-        sort(head, &q);
-    }
-
+    *head = sorted;
 }
 
 int main() {
     char *s = get_S();
     List *head = NULL;
-    List *tail = NULL;
+   // List *tail = NULL;
     while(strcmp(s, END_WORD) != 0){
         push(&head, s);
         s = get_S();
     }
-    tail = getTail(head);
+    //tail = getTail(head);
   //  printf("%s\n", tail -> s);
-    sort(&head, &tail);
+   // sort(&head, &tail);
+    print(head);
+    printf("\n");
+    sort(&head);
     print(head);
 
     return 0;
