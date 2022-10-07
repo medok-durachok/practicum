@@ -15,7 +15,6 @@ char * get_S(void) {
     char * s = malloc(ADD_M);
 
     if(!s) return NULL;
-
     while(fgets(s + k, ADD_M, stdin)) {
         n = strlen(s);
         if(s[n - 1] != '\n') {
@@ -30,17 +29,6 @@ char * get_S(void) {
     return NULL;
 }
 
-
-List * getTail(List *head) {
-    if (head == NULL) {
-        return NULL;
-    }
-    while (head->next) {
-        head = head->next;
-    }
-    return head;
-}
-
 void push(List **head, char * s) {
     List *tmp = (List*) malloc(sizeof(List));
     tmp -> s = s;
@@ -50,7 +38,7 @@ void push(List **head, char * s) {
 
 void print(List *head) {
     List *p = head;
-    while(p != NULL){
+    while(p != NULL) {
         printf("%s\n", p -> s);
         p = p -> next;
     }
@@ -58,7 +46,7 @@ void print(List *head) {
 
 void delete(List **head) {
     List *p = NULL;
-    while((*head) -> next){
+    while((*head) -> next) {
         p = *head;
         (*head) = (*head) -> next;
         free(p);
@@ -66,33 +54,21 @@ void delete(List **head) {
     free(*head);
 }
 
-List * previous(List * head, List **current) {
-    List * prev = head;
-    while(prev -> next != *current) {
-        prev = prev -> next;
-    }
-    return prev;
-}
-
 void insert(List *ins, List **sorted) {
-    //printf("%s\n", ins -> s);
-    if((*sorted) == NULL || (strcmp((*sorted) -> s, ins -> s) > 0)){
+    if((*sorted) == NULL || (strcmp((*sorted) -> s, ins -> s) > 0)) {
         ins -> next = (*sorted);
         (*sorted) = ins;
-        //printf("%s %s\n*\n", (*sorted) -> s, ins -> s);
     } else {
         List *p = (*sorted);
-        while((p -> next != NULL)&& (strcmp(p -> next -> s, ins -> s) < 0)) {
+        while((p -> next != NULL) && (strcmp(p -> next -> s, ins -> s) < 0)) {
             p = p -> next;
         }
         ins -> next = p -> next;
         p -> next = ins;
-        //printf("%s %s\n**\n", p -> s, ins -> s);
     }
 }
 
 void sort(List **head) {
-    //printf("%s\n", (*head) -> s);
     List * curr = (*head);
     List *sorted = NULL;
 
@@ -106,20 +82,40 @@ void sort(List **head) {
 }
 
 int main() {
-    char *s = get_S();
-    List *head = NULL;
-   // List *tail = NULL;
-    while(strcmp(s, END_WORD) != 0){
-        push(&head, s);
-        s = get_S();
-    }
-    //tail = getTail(head);
-  //  printf("%s\n", tail -> s);
-   // sort(&head, &tail);
-    print(head);
-    printf("\n");
-    sort(&head);
-    print(head);
+    int flag = 0; char *c; List *head;
+    do {
+        printf("-----------\n%s\n", "Enter the words, each from a new line. To stop entering, leave the line empty.");
+        head = NULL;
+        char *s = get_S();
+        if(strcmp(s, "") == 0) {
+            printf("\nNo words in the list\n");
+        } else {
+            while(strcmp(s, END_WORD) != 0) {
+                push(&head, s);
+                s = get_S();
+            }
+            sort(&head);
+            print(head);
+        }
+        printf("\n-----------\n%s\n", "Sort another one list? (y/n): ");
+        while(fgets(c, 256, stdin)) {
+            if((c[0] != 'n') && (c[0] != 'y')) {
+                printf("Wrong input. Try again (y/n): ");
+                //
+            }
+
+            if(c[0] == 'n' && c[1] == '\n') {
+                if(head != NULL) delete(&head);
+                flag = 1;
+                printf("Exit..\n");
+                break;
+            } else {
+                delete(&head);
+                break;
+            }
+        }
+
+    } while(flag == 0);
 
     return 0;
 }
