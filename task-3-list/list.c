@@ -10,19 +10,17 @@ typedef struct list {
 	struct list * next;
 } List;
 
-char * throwException(void) {
+char * throwException(void) {                   //проверка ввода 
     char * c;
     c = malloc(ADD_M);
     printf("Wrong input. Try again (y/n): ");
     while(fgets(c, 256, stdin)) {
         return c;
     }
-   // if(strcmp(c, "y") == 0 || strcmp(c, "n") == 0) {
-        //break;
-   // }
     return NULL;
 }
-char * get_S(void) {
+
+char * get_S(void) {                            //ввод динамической строки
     int n, k = 0;
     char * s = malloc(ADD_M);
 
@@ -41,14 +39,14 @@ char * get_S(void) {
     return NULL;
 }
 
-void push(List **head, char * s) {
+void push(List **head, char * s) {              //добавление узла в начало списка
     List *tmp = (List*) malloc(sizeof(List));
     tmp -> s = s;
     tmp -> next = (*head);
     (*head) = tmp;
 }
 
-void print(List *head) {
+void print(List *head) {                        // вывод списка
     List *p = head;
     while(p != NULL) {
         printf("%s\n", p -> s);
@@ -56,7 +54,7 @@ void print(List *head) {
     }
 }
 
-void delete(List **head) {
+void delete(List **head) {                      //очистка памяти
     List *p = NULL;
     while((*head) -> next) {
         p = *head;
@@ -66,21 +64,21 @@ void delete(List **head) {
     free(*head);
 }
 
-void insert(List *ins, List **sorted) {
-    if((*sorted) == NULL || (strcmp((*sorted) -> s, ins -> s) > 0)) {
+void insert(List *ins, List **sorted) {         //вставка в отсортированную часть 
+    if((*sorted) == NULL || (strcmp((*sorted) -> s, ins -> s) > 0)) {           //вставка первым или перед первым 
         ins -> next = (*sorted);
         (*sorted) = ins;
     } else {
         List *p = (*sorted);
-        while((p -> next != NULL) && (strcmp(p -> next -> s, ins -> s) < 0)) {
-            p = p -> next;
+        while((p -> next != NULL) && (strcmp(p -> next -> s, ins -> s) < 0)) {      //проход по элементам, меньшим нужного
+            p = p -> next;      
         }
-        ins -> next = p -> next;
+        ins -> next = p -> next;                                                    //вставка между элементами
         p -> next = ins;
     }
 }
 
-void sort(List **head) {
+void sort(List **head) {                        // проход по неотсортированной части
     List * curr = (*head);
     List *sorted = NULL;
 
@@ -111,11 +109,7 @@ int main() {
         }
         printf("\n-----------\n%s\n", "Sort another one list? (y/n): ");
         while(fgets(c, 256, stdin)) {
-          /* if((c[0] != 'n') && (c[0] != 'y')) {
-                printf("Wrong input. Try again (y/n): ");
-                //
-            }*/
-        exc:
+        exc:                                               
             if(c[0] == 'n' && c[1] == '\n') {
                 if(head != NULL) delete(&head);
                 flag = 1;
@@ -126,7 +120,7 @@ int main() {
                 delete(&head);
                 break;
             } else {
-                c = throwException();
+                c = throwException();                       //показалось удобнее, чем через do_while
                 goto exc;
             }
         }
