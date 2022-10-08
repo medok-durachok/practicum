@@ -10,16 +10,6 @@ typedef struct list {
 	struct list * next;
 } List;
 
-char * throwException(void) {                   //проверка ввода 
-    char * c;
-    c = malloc(ADD_M);
-    printf("Wrong input. Try again (y/n): ");
-    while(fgets(c, 256, stdin)) {
-        return c;
-    }
-    return NULL;
-}
-
 char * get_S(void) {                            //ввод динамической строки
     int n, k = 0;
     char * s = malloc(ADD_M);
@@ -97,11 +87,11 @@ int main() {
         printf("-----------\n%s\n", "Enter the words, each from a new line. To stop entering, leave the line empty.");
         head = NULL;
         char *s = get_S();
-        if(strcmp(s, "") == 0) {
+        if(strcmp(s, "") == 0 || strcmp(s, " ") == 0) {
             printf("\nNo words in the list");
         } else {
             while(strcmp(s, END_WORD) != 0) {
-                push(&head, s);
+                if(strcmp(s, " ") != 0) push(&head, s);
                 s = get_S();
             }
             sort(&head);
