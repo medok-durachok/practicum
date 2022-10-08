@@ -65,12 +65,12 @@ void delete(List **head) {                      //очистка памяти
 }
 
 void insert(List *ins, List **sorted) {         //вставка в отсортированную часть 
-    if((*sorted) == NULL || (strcmp((*sorted) -> s, ins -> s) > 0)) {           //вставка первым или перед первым 
+    if((*sorted) == NULL || (strcasecmp((*sorted) -> s, ins -> s) > 0)) {           //вставка первым или перед первым 
         ins -> next = (*sorted);
         (*sorted) = ins;
     } else {
         List *p = (*sorted);
-        while((p -> next != NULL) && (strcmp(p -> next -> s, ins -> s) < 0)) {      //проход по элементам, меньшим нужного
+        while((p -> next != NULL) && (strcasecmp(p -> next -> s, ins -> s) < 0)) {      //проход по элементам, меньшим нужного
             p = p -> next;      
         }
         ins -> next = p -> next;                                                    //вставка между элементами
@@ -92,36 +92,37 @@ void sort(List **head) {                        // проход по неотс�
 }
 
 int main() {
-    int flag = 0; char *c = malloc(ADD_M); List *head;
+    int flag = 0; List *head;
     do {
         printf("-----------\n%s\n", "Enter the words, each from a new line. To stop entering, leave the line empty.");
         head = NULL;
         char *s = get_S();
         if(strcmp(s, "") == 0) {
-            printf("\nNo words in the list\n");
+            printf("\nNo words in the list");
         } else {
             while(strcmp(s, END_WORD) != 0) {
                 push(&head, s);
                 s = get_S();
             }
             sort(&head);
+            printf("-----------\n%s\n", "Sorted list:");
             print(head);
         }
         printf("\n-----------\n%s\n", "Sort another one list? (y/n): ");
-        while(fgets(c, 256, stdin)) {
-        exc:                                               
-            if(c[0] == 'n' && c[1] == '\n') {
+
+        while(1) {      
+            char *c = get_S();                                        
+            if(strcmp(c, "n") == 0) {
                 if(head != NULL) delete(&head);
                 flag = 1;
                 printf("Exit..\n");
                 break;
             }
-            if(c[0] == 'y' && c[1] == '\n') {
-                delete(&head);
+            if(strcmp(c, "y") == 0) {
+                if(head != NULL) delete(&head);
                 break;
             } else {
-                c = throwException();                       //показалось удобнее, чем через do_while
-                goto exc;
+                printf("Wrong input. Try again (y/n): ");
             }
         }
 
