@@ -1,52 +1,62 @@
 #include "matrixlib.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-int main(){
-    char command[6];
-    int n1, m1, n2, m2;
-    double * matrix, * additional_matrix, * changed_matrix;
+//const int unsigned n = 2;
+//const int unsigned m = 2;
+
+int main() {
+    int command;
+    int n1, m1, m2;
+    char c[256]; int flag = 0, end_flag = 0;
+    double det;
+    double * matrix, * additional_matrix;
     printf("Welcome to Matrix Calculator. To read the instruction, press 0.\n");
-    scanf("%s", command);
-    if(strcmp(command, "0") == 0){
+    scanf("%s", c);
+    if(strcmp(c, "0") == 0) {
         instruction();
     }
 
-    while(strcmp(command, "exit") != 0){
-        printf("-----------\nCommand: ");
-        scanf("%s", command);
-        if (strcmp(command, "add") == 0){
-            printf("\nEnter the number of rows: ");
-            scanf("%d", &n1);
-            printf("and the number of columns: ");
-            scanf("%d", &m1);
-            matrix = input_m(n1, m1);
+    printf("\nFirstly enter new matrix:");
+    rows_cols(&n1, &m1);
+    matrix = input_m(n1, m1);
+
+    do {
+        printf("\n-----------\nCommand #: ");
+        do {
+            scanf("%s", c);
+            flag = check_input(2, c);
         }
-        if (strcmp(command, "out") == 0){
-            output_m(matrix);
-        }
-        if (strcmp(command, "+") == 0){
-            printf("\nEnter the number of rows: ");
-            scanf("%d", &n2);
-            printf("and the number of columns: ");
-            scanf("%d", &m2);
-            additional_matrix = input_m(n2, m2);
-            matrix = sum_m(matrix, additional_matrix, n1, m1, n2 ,m2);
-        }
-        if (strcmp(command, "*") == 0){
-            printf("\nEnter the number of rows: ");
-            scanf("%d", &n2);
-            printf("and the number of columns: ");
-            scanf("%d", &m2);
-            additional_matrix = input_m(n2, m2);
-            matrix = mul_m(matrix, additional_matrix, n1, m1, n2 ,m2);
-        }
-        if (strcmp(command, "num") == 0){
-            matrix = num_m(matrix);
-        }
-        if (strcmp(command, "det") == 0){
-            determinant_gauss(matrix, n1, m1);
-        }
-    }
+        while (flag == 1);
+        command = atoi(c);
+
+        switch(command) {
+            case 0: 
+                instruction();
+                break;
+            case 1:
+                output_m(matrix, n1, m1);
+                break;
+            case 2:
+                matrix = sum_m(matrix, n1, m1);
+                break;
+            case 3:
+                matrix = mul_m(matrix, n1, m1, &m2);
+                m1 = m2;
+                break;
+            case 4:
+                matrix = num_m(matrix, n1, m1);
+                break;
+            case 5:
+                det = determinant_gauss(matrix, n1, m1);
+                printf("Determinant of matrix is %.2lf", det);
+                break;
+            case 6:
+                end_flag = 1;
+                printf("Exit from the Calculator..\n");
+                break;
+            default: 
+                printf("No command found");
+                break;
+        }    
+    } while(end_flag == 0);
+    free(matrix);
 }

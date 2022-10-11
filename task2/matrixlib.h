@@ -4,19 +4,25 @@
 #include <stdlib.h>
 #include <math.h>
 #include <limits.h>
+#include <ctype.h>
+#include <string.h>
+
+int check_input(int err, char * c);
 
 void instruction(void);
 
-double * input_m(int nn, int mm);
+double * input_m(int n, int m);
 
-void output_m(double * m_arr);
+void output_m(double * m_arr, int n, int m);
 
-double * sum_m(double * m1_arr, double * m2_arr, int n1, int m1, int n2, int m2);
+void rows_cols(int * n, int * m);
 
-double * num_m(double * m_arr);
+double * sum_m(double * m1_arr, int n1, int m1);
 
-double * mul_m(double * m1_arr, double * m2_arr, int n1, int m1, int m2, int k2);
+double * num_m(double * m_arr, int n, int m);
 
-void determinant_gauss(double * m_arr, int nn, int mm);
+double * mul_m(double * m1_arr, int n1, int m1, int * k);
 
-#endif // MATRIX_LIB_H_INCLUDED
+double determinant_gauss(double * m_arr, int n, int m);
+
+#endif
