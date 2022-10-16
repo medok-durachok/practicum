@@ -12,12 +12,12 @@ char * get_S(FILE *f, int *len) {                            //ввод дина
     if(!s) return NULL;
     while(fgets(s + k, ADD_M, f)) {
         n = strlen(s);
-        if(s[n - 1] != '\n') {
+        if(s[n - 1] != '\n' && !feof(f)) {
             k = k + ADD_M - 1;
             s = realloc(s, k + ADD_M);
             if(!s) return NULL;
         } else {
-            s[n - 1] = '\0';
+            if(s[n - 1] == '\n') s[n - 1] = '\0';
             *len = n;
             return s;
         }
