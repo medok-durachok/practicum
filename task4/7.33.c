@@ -5,40 +5,67 @@
 #define ADD_M 10
 #define ADD_A 1
 
-char * get_S(FILE *f, int *len, int maxlen) {
+/*char * get_S(FILE *f, int *len, int max_len) {
     int n, k = 0;
-    char * s = malloc(maxlen * sizeof(char));
+    char * s = malloc(max_len);
 
     if(!s) return NULL;
-    while(fgets(s, maxlen, f)) {
+    while(fgets(s, max_len, f)) {
         n = strlen(s);
-        s[n - 1] = '\0';
-        *len = n;
-        return s;
+        if(s[n - 1] != '\n' && !feof(f)) {
+            k = k + max_len - 1;
+            if(!s) return NULL;
+        } else {
+            if(s[n - 1] == '\n') {
+                s[n - 1] = '\0';
+                *len = n - 1;
+            } else {
+                *len = n;
+            }
+            return s;
+        }
     }
     return NULL;
+}
+*/
+
+int get_L(FILE *f, int max_len) {
+    int n, k = 0;
+    char * s = malloc(max_len);
+
+    if(!s) return -1;
+    while(fgets(s, max_len, f)) {
+        n = strlen(s);
+        if(s[n - 1] != '\n' && !feof(f)) {
+            k = k + max_len - 1;
+            if(!s) return -1;
+        } else {
+            if(s[n - 1] == '\n') {
+                s[n - 1] = '\0';
+                return n - 1;
+            } else {
+                return n;
+            }
+        }
+    }
+    return -1;
 }
 
 int main(int argc, char * argv[]) {
     FILE * f; int max_len, len = 0, count = 0, n = ADD_M;
     f = fopen(argv[1], "r+");
     max_len = atoi(argv[2]);
-    char *s1 = NULL, *s2 = NULL, *str = NULL;
+    char *str = NULL, *s1 = NULL, *s2 = NULL;
 
     int *len_arr = calloc(n, sizeof(int)), *offset_arr = calloc(n, sizeof(int));
-    char **str_arr = malloc(n * sizeof(char));
-    printf("%d\n", max_len);
 
     if (f == NULL) {
         printf("Error opening file");
         exit(1);
     }
 
-    while(1) {
-        str = get_S(f, &len, max_len);
-        if(str == NULL) break;
-        str_arr[n - 1] = malloc(len + 1);
-        strcpy(str_arr[n - 1], str);
+    while((len = get_L(f, max_len)) != -1) {
+        printf("%d\n", len);
         offset_arr[count] = ftell(f) - sizeof(int);
         len_arr[count] = len;
         count++;
@@ -49,21 +76,25 @@ int main(int argc, char * argv[]) {
             len_arr = realloc(len_arr, n * sizeof(int));
         };
     }
+    free(str);
 
-    for(int i = 0; i < count - 1; i++) {
+    /*for(int i = 0; i < count - 1; i++) {
         for(int j = i; j < count; j++){
             if(len_arr[i] > len_arr[j]) {
+                int tmp = len_arr[i];
+                len_arr[i] = len_arr[j];
+                len_arr[j] = tmp;
                 fseek(f, offset_arr[j], SEEK_SET);
-                s1 = fgets(str, max_len, f);
+                s2 = get_S(f, &len);
                 fseek(f, offset_arr[i], SEEK_SET);
-                s2 = fgets(str, max_len, f);
+                s1 = get_S(f, &len);
                 fseek(f, offset_arr[j], SEEK_SET);
-                fwrite(&s2, sizeof(char), 1, f);
+                fwrite(s1, sizeof(char), 1, f);
                 fseek(f, offset_arr[i], SEEK_SET);
-                fwrite(&s1, sizeof(char), 1, f);
+                fwrite(s2, sizeof(char), 1, f);
             }
         }
-    }
+    }*/
 
     fclose(f);
     return 0;
