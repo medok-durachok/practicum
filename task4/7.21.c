@@ -76,5 +76,11 @@ int main(int argc, char * argv[]) {
     printf("%s\n", max_str);
 
     fclose(f);
+
+    free(str);
+    free(str_arr);
+    free(counter_arr);
+    free(max_str);
+
     return 0;
 }
