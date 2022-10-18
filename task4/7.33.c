@@ -8,7 +8,7 @@ int main(int argc, char * argv[]) {
     FILE * f; int max_len, len = 0, count = 0, n = ADD_M;
     f = fopen(argv[1], "r+");
     max_len = atoi(argv[2]);
-    char *str = malloc((max_len + 1) * sizeof(char));
+    char *str = malloc(max_len * sizeof(char));
 
     int *len_arr = calloc(n, sizeof(int)), *offset_arr = calloc(n, sizeof(int));
 
@@ -20,7 +20,7 @@ int main(int argc, char * argv[]) {
     offset_arr[0] = 0;
     while(fscanf(f, "%s", str) != -1) {
         len = strlen(str);
-        str[len] = '\0';
+        str[len] = '\n';
         offset_arr[count + 1] = ftell(f) + 1;
         len_arr[count] = len;
         count++;
@@ -53,6 +53,7 @@ int main(int argc, char * argv[]) {
         }
     }
 
+    str = malloc(max_len* sizeof(char));
     for(int i = 0; i < count; i++) {
         fseek(f, offset_arr[i], SEEK_SET);
         fscanf(f, "%s", str);
@@ -61,5 +62,18 @@ int main(int argc, char * argv[]) {
     }
 
     fclose(f);
+    fclose(tmp_f);
+
+    f = fopen(argv[1], "w");
+    tmp_f = fopen("tmp.txt", "r");
+
+    char c = ' ';
+    while((c = fgetc(tmp_f)) != EOF) {
+        fputc(c, f);
+    }
+
+    fclose(f);
+    fclose(tmp_f);
+    remove("tmp.txt");
     return 0;
 }
