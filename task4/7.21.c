@@ -3,7 +3,6 @@
 #include <string.h>
 
 #define ADD_M 10
-#define ADD_A 1
 
 char * get_S(FILE *f, int *len) {                            //ввод динамической строки
     int n, k = 0;
@@ -26,27 +25,27 @@ char * get_S(FILE *f, int *len) {                            //ввод дина
 }
 
 int main(int argc, char * argv[]) {
-    FILE * f1;
-    f1 = fopen(argv[1], "r");
- 
-    if (f1 == NULL) {
+    FILE * f;
+    f = fopen(argv[1], "r");
+
+    if (f == NULL) {
         printf("Error opening file");
         exit(1);
     }
 
-    int n = ADD_A;
-    int isInArr = 0, maxim = -1, len = 0; 
+    int n = ADD_M;
+    int isInArr = 0, maxim = -1, len = 0, counter = 0;
     char **str_arr, *max_str = malloc(sizeof(char)); int *counter_arr;
     str_arr = malloc(n * sizeof(char*));
     counter_arr = calloc(n, sizeof(int));
 
-    char *str = get_S(f1, &len);
+    char *str = get_S(f, &len);
     if(str == NULL) exit(1);
-    str_arr[n - 1] = malloc(len + 1);
-    strcpy(str_arr[n - 1], str);
+    str_arr[counter] = malloc(len + 1);
+    strcpy(str_arr[counter], str);
 
     do {
-        for(int i = 0; i < n; i++) {
+        for(int i = 0; i < counter; i++) {
             if(strcmp(str_arr[i], str) == 0) {
                 counter_arr[i]++;
                 isInArr = 1;
@@ -54,18 +53,21 @@ int main(int argc, char * argv[]) {
             if(isInArr == 1) break;
         }
         if(isInArr == 0) {
-            n++;
-            str_arr = realloc(str_arr, n * sizeof(char*));
-            counter_arr = realloc(counter_arr, n * sizeof(int));
-            str_arr[n - 1] = malloc(len + 1);
-            strcpy(str_arr[n - 1], str);
-            counter_arr[n - 1] = 1;
+            counter++;
+            if(counter >= n) {
+                n += ADD_M;
+                str_arr = realloc(str_arr, n * sizeof(char*));
+                counter_arr = realloc(counter_arr, n * sizeof(int));
+            }
+            str_arr[counter] = malloc(len + 1);
+            strcpy(str_arr[counter], str);
+            counter_arr[counter] = 1;
         }
         isInArr = 0;
-        str = get_S(f1, &len);
+        str = get_S(f, &len);
     } while (str != NULL);
 
-    for(int i = 0; i < n; i++) {
+    for(int i = 0; i < counter; i++) {
         if(counter_arr[i] > maxim) {
             maxim = counter_arr[i];
             strcpy(max_str, str_arr[i]);
@@ -73,6 +75,6 @@ int main(int argc, char * argv[]) {
     }
     printf("%s\n", max_str);
 
-    fclose(f1);
+    fclose(f);
     return 0;
 }
