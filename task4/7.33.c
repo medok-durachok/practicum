@@ -19,7 +19,6 @@ int main(int argc, char * argv[]) {
     offset_arr[0] = 0;
     while(fscanf(f, "%s", str) != -1) {
         len = strlen(str);
-        str[len] = '\0';
         offset_arr[count + 1] = ftell(f) + 1;
         len_arr[count] = len;
         count++;
@@ -55,7 +54,11 @@ int main(int argc, char * argv[]) {
     for(int i = 0; i < count; i++) {
         fseek(f, offset_arr[i], SEEK_SET);
         fscanf(f, "%s", str);
-        fwrite(str, sizeof(char*), 1, tmp_f);
+
+        for(int j = 0; j < len_arr[i]; j++){
+            fputc(str[j], tmp_f);
+        }
+
         fputc('\n', tmp_f);
     }
 
