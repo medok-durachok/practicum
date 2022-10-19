@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ADD_M 10
+#define ADD_M 20
 
 int main(int argc, char * argv[]) {
     FILE * f; int max_len, len = 0, count = 0, n = ADD_M;
     f = fopen(argv[1], "r");
     max_len = atoi(argv[2]);
     char *str = malloc(max_len * sizeof(char));
-    int *len_arr = calloc(n, sizeof(int)), *offset_arr = calloc(n, sizeof(int));
+    int *len_arr = malloc(n * sizeof(int)), *offset_arr = malloc(n * sizeof(int));
 
     if (f == NULL) {
         printf("Error opening file");
@@ -23,8 +23,7 @@ int main(int argc, char * argv[]) {
         offset_arr[count + 1] = ftell(f) + 1;
         len_arr[count] = len;
         count++;
-
-        if(count >= n) {
+        if(count == n - 1) {
             n += ADD_M;
             offset_arr = realloc(offset_arr, n * sizeof(int));
             len_arr = realloc(len_arr, n * sizeof(int));
@@ -52,7 +51,7 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    str = malloc(max_len* sizeof(char));
+    str = malloc(max_len * sizeof(char));
     for(int i = 0; i < count; i++) {
         fseek(f, offset_arr[i], SEEK_SET);
         fscanf(f, "%s", str);
