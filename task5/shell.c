@@ -56,21 +56,22 @@ char **parse(char **w_arr, char *s, int *counter) {
 
     for(int i = 0; i < strlen(s); i++) {
         if(s[i] != ' ') {
-            isFirstSpace = 0;
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
-                word[let_counter] = '\0';
-                w_arr[word_counter] = malloc(let_counter + 1);
-                strcpy(w_arr[word_counter], word);
-                word_counter++;
+                if(i != 0 && isFirstSpace != 1) {
+                    word[let_counter] = '\0';
+                    w_arr[word_counter] = malloc(let_counter + 1);
+                    strcpy(w_arr[word_counter], word);
+                    word_counter++;
 
-                if(word_counter == word_mem - 1) {
-                    word_mem += ADD_M;
-                    w_arr = realloc(w_arr, word_mem * sizeof(char*));
+                    if(word_counter == word_mem - 1) {
+                        word_mem += ADD_M;
+                        w_arr = realloc(w_arr, word_mem * sizeof(char*));
+                    }
                 }
 
                 let_counter = 0;
                 word[let_counter] = s[i];
-                if(((i + 1) != strlen(s) - 1) && (s[i + 1] == '&' || s[i + 1] == '|' || s[i + 1] == '>')) {
+                if(((i + 1) != strlen(s)) && (s[i + 1] == '&' || s[i + 1] == '|' || s[i + 1] == '>')) {
                     let_counter++;
                     i++;
                     word[let_counter] = s[i];
@@ -82,7 +83,12 @@ char **parse(char **w_arr, char *s, int *counter) {
                 word_counter++;
                 let_counter = 0;
                 i++;
+                if(i == strlen(s)) {
+                    isFirstSpace = 1;
+                    continue;
+                }
             }
+            isFirstSpace = 0;
             if(let_counter == let_mem - 1) {
                 let_mem += ADD_M;
                 word = realloc(word, let_mem);
@@ -143,7 +149,7 @@ void free_p(char **arr, int size) {
 }
 
 int main() {
-    char c; int count = 0, isErr = 1;
+    char c; int count = 0;
     FILE *f;
     char *s = malloc(ADD_M);
     char **words_arr = malloc(ADD_M * sizeof(char*));
@@ -151,32 +157,28 @@ int main() {
     printf("----------- SHELL INTERPRETER -----------\n");
     printf("To enter data from a file, press 'f'. To enter from the keyboard, press 'k': ");
     scanf("%c", &c);
+    while(c != 'k' && c != 'f'){
+        printf("Wrong choice. Enter 'f' or 'k': ");
+        getchar();
+        scanf("%c", &c);
+    }
     getchar();
 
-    do {
-        if(c == 'k') {
-            isErr = 0;
-            while(s != NULL) {
-                s = keyboard_enter();
-                if(s != NULL) words_arr = parse(words_arr, s, &count);
-            }
+    if(c == 'k') {
+        while(s != NULL) {
+            s = keyboard_enter();
+            if(s != NULL) words_arr = parse(words_arr, s, &count);
         }
-        if(c == 'f') {
-            isErr = 0;
-            printf("Inputing from file..");
-            f = fopen("tmp.txt", "r");
-            while(s != NULL) {
-                s = file_enter(f);
-                if(s != NULL) words_arr = parse(words_arr, s, &count);
-            }
-            fclose(f);
+    }
+    if(c == 'f') {
+        printf("Inputing from file..");
+        f = fopen("tmp.txt", "r");
+        while(s != NULL) {
+            s = file_enter(f);
+            if(s != NULL) words_arr = parse(words_arr, s, &count);
         }
-        if(isErr == 1) {
-            printf("Wrong choice. Enter 'f' or 'k': ");
-            scanf("%c", &c);
-            getchar();
-        }
-    } while(isErr == 1);
+        fclose(f);
+    }
 
     output(words_arr, count);
 
