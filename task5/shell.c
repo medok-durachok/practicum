@@ -135,7 +135,7 @@ void output(char **arr, int size) {                         //вывод мас�
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     char c[256]; int count = 0, isRightSym = 0;
     FILE *f;
     char *s = malloc(ADD_M);
@@ -160,7 +160,7 @@ int main() {
     }
     if(strcasecmp(c, "f") == 0) {
         printf("Inputing from file..\n");
-        f = fopen("tmp.txt", "r");
+        f = fopen(argv[1], "r");
         while(s != NULL) {
             s = file_enter(f);
             if(s != NULL) words_arr = parse(words_arr, s, &count);
