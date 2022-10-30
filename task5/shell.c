@@ -4,9 +4,8 @@
 
 #define ADD_M 10
 
-char *keyboard_enter(void) {
+char *keyboard_enter(void) {                        //ввод строк с клавиатуры
     int unsigned str_length, k = 0;
-
     char *s = malloc(ADD_M);
     if (!s) return NULL;
 
@@ -28,7 +27,7 @@ char *keyboard_enter(void) {
     return NULL;
 }
 
-char * file_enter(FILE *f) {
+char * file_enter(FILE *f) {                        //ввод из файла
     int unsigned s_len = 0;
     int unsigned k = 0;
 
@@ -49,23 +48,23 @@ char * file_enter(FILE *f) {
     return NULL;
 }
 
-void mem_all(char *word, int l_c, char **w_a, int *w_c) {
+void mem_all(char *word, int l_c, char **w_a, int *w_c) {       //выделение памяти на слова в массиве
     word[l_c] = '\0';
     w_a[*w_c] = malloc(l_c + 1);
     strcpy(w_a[*w_c], word);
     (*w_c)++;
 }
 
-char **parse(char **w_arr, char *s, int *counter) {
+char **parse(char **w_arr, char *s, int *counter) {                 //разбивка строк на слова
     int isCLosingQuoteMark = 0, isFirstSpace = 0;
     int let_counter = 0, word_counter = *counter, word_mem = ADD_M, let_mem = ADD_M;
     char *word = malloc(ADD_M);
 
     for(int i = 0; i < strlen(s); i++) {
-        if(s[i] != ' ') {
+        if(s[i] != ' ') {                                           //ниже: обработка спецсимволов
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
-                if(i != 0 && isFirstSpace != 1) {
-                    if(word_counter == word_mem - 1) {
+                if(i != 0 && isFirstSpace != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
+                    if(word_counter == word_mem - 1) {              //то нет предшествующего незаписанного слова
                         word_mem += ADD_M;
                         w_arr = realloc(w_arr, word_mem * sizeof(char*));
                     }
@@ -74,7 +73,7 @@ char **parse(char **w_arr, char *s, int *counter) {
 
                 let_counter = 0;
                 word[let_counter] = s[i];
-                if(((i + 1) != strlen(s)) && (s[i + 1] == '&' || s[i + 1] == '|' || s[i + 1] == '>')) {
+                if(((i + 1) != strlen(s)) && (s[i + 1] == '&' || s[i + 1] == '|' || s[i + 1] == '>')) {  //проверка для парных символов
                     let_counter++;
                     i++;
                     word[let_counter] = s[i];
@@ -83,7 +82,7 @@ char **parse(char **w_arr, char *s, int *counter) {
                 mem_all(word, let_counter, w_arr, &word_counter);
                 let_counter = 0;
                 i++;
-                if(i == strlen(s)) {
+                if(i == strlen(s)) {                    //если спецсимвол последний в строке, то больше не нужна обработка последнего слова вне цикла
                     isFirstSpace = 1;
                     continue;
                 }
@@ -93,7 +92,7 @@ char **parse(char **w_arr, char *s, int *counter) {
                 let_mem += ADD_M;
                 word = realloc(word, let_mem);
             }
-            if(s[i] == '"' && isCLosingQuoteMark == 0) {
+            if(s[i] == '"' && isCLosingQuoteMark == 0) {        //обработка кавычек
                 isCLosingQuoteMark = 1;
                 continue;
             } 
@@ -104,7 +103,7 @@ char **parse(char **w_arr, char *s, int *counter) {
             word[let_counter] = s[i];
             let_counter++;
         } else {
-            if(isCLosingQuoteMark == 1) {
+            if(isCLosingQuoteMark == 1) {               //обработка пробелов внутри кавычек
                 word[let_counter] = ' ';
                 let_counter++;
                 continue;
@@ -120,7 +119,7 @@ char **parse(char **w_arr, char *s, int *counter) {
             let_counter = 0;
         }
     }
-    if(isFirstSpace == 0) {
+    if(isFirstSpace == 0) {                                 //запись последнего слова, если не пробел и не спецсимвол
         mem_all(word, let_counter, w_arr, &word_counter);
     }
 
@@ -129,7 +128,7 @@ char **parse(char **w_arr, char *s, int *counter) {
     return w_arr;
 }
 
-void output(char **arr, int size) {
+void output(char **arr, int size) {                         //вывод массива слов
     printf("-----------\n");
     if(size == 0) printf("No words entered.\n");
     for(int i = 0; i < size; i++) {
@@ -151,7 +150,7 @@ int main() {
 
     printf("----------- SHELL INTERPRETER -----------\n");
     printf("To enter data from a file, press 'f'. To enter from the keyboard, press 'k': ");
-    do{
+    do {                                                     //проверка правильности введеных символов
         scanf("%s", c);
         if(strcasecmp(c, "k") == 0 || strcasecmp(c, "f") == 0) isRightSym = 1;
         if(isRightSym == 0) printf("Wrong input. Try again (f/k): ");
