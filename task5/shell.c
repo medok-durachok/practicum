@@ -143,7 +143,7 @@ void free_p(char **arr, int size) {
 }
 
 int main() {
-    char c; int count = 0;
+    char c; int count = 0, isErr = 1;
     FILE *f;
     char *s = malloc(ADD_M);
     char **words_arr = malloc(ADD_M * sizeof(char*));
@@ -153,21 +153,31 @@ int main() {
     scanf("%c", &c);
     getchar();
 
-    if(c == 'k') {
-        while(s != NULL) {
-            s = keyboard_enter();
-            if(s != NULL) words_arr = parse(words_arr, s, &count);
+    do {
+        if(c == 'k') {
+            isErr = 0;
+            while(s != NULL) {
+                s = keyboard_enter();
+                if(s != NULL) words_arr = parse(words_arr, s, &count);
+            }
         }
-    }
-    if(c == 'f') {
-        printf("Inputing from file..");
-        f = fopen("tmp.txt", "r");
-        while(s != NULL) {
-            s = file_enter(f);
-            if(s != NULL) words_arr = parse(words_arr, s, &count);
+        if(c == 'f') {
+            isErr = 0;
+            printf("Inputing from file..");
+            f = fopen("tmp.txt", "r");
+            while(s != NULL) {
+                s = file_enter(f);
+                if(s != NULL) words_arr = parse(words_arr, s, &count);
+            }
+            fclose(f);
         }
-        fclose(f);
-    }
+        if(isErr == 1) {
+            printf("Wrong choice. Enter 'f' or 'k': ");
+            scanf("%c", &c);
+            getchar();
+        }
+    } while(isErr == 1);
+
     output(words_arr, count);
 
     free(s);
