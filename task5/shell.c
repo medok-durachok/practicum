@@ -57,6 +57,32 @@ char **parse(char **w_arr, char *s, int *counter) {
     for(int i = 0; i < strlen(s); i++) {
         if(s[i] != ' ') {
             isFirstSpace = 0;
+            if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
+                word[let_counter] = '\0';
+                w_arr[word_counter] = malloc(let_counter + 1);
+                strcpy(w_arr[word_counter], word);
+                word_counter++;
+
+                if(word_counter == word_mem - 1) {
+                    word_mem += ADD_M;
+                    w_arr = realloc(w_arr, word_mem * sizeof(char*));
+                }
+
+                let_counter = 0;
+                word[let_counter] = s[i];
+                if(((i + 1) != strlen(s) - 1) && (s[i + 1] == '&' || s[i + 1] == '|' || s[i + 1] == '>')) {
+                    let_counter++;
+                    i++;
+                    word[let_counter] = s[i];
+                }
+                let_counter++;
+                word[let_counter] = '\0';
+                w_arr[word_counter] = malloc(let_counter + 1);
+                strcpy(w_arr[word_counter], word);
+                word_counter++;
+                let_counter = 0;
+                i++;
+            }
             if(let_counter == let_mem - 1) {
                 let_mem += ADD_M;
                 word = realloc(word, let_mem);
@@ -79,14 +105,15 @@ char **parse(char **w_arr, char *s, int *counter) {
             }
             if(isFirstSpace != 0) continue;
             isFirstSpace = 1;
-            word[let_counter] = '\0';
-            w_arr[word_counter] = malloc(let_counter + 1);
-            strcpy(w_arr[word_counter], word);
-            word_counter++;
+
             if(word_counter == word_mem - 1) {
                 word_mem += ADD_M;
                 w_arr = realloc(w_arr, word_mem * sizeof(char*));
             }
+            word[let_counter] = '\0';
+            w_arr[word_counter] = malloc(let_counter + 1);
+            strcpy(w_arr[word_counter], word);
+            word_counter++;
             let_counter = 0;
         }
     }
@@ -97,6 +124,7 @@ char **parse(char **w_arr, char *s, int *counter) {
         word_counter++;
     }
 
+    free(word);
     *counter = word_counter;
     return w_arr;
 }
@@ -105,6 +133,12 @@ void output(char **arr, int size) {
     printf("\n-----------\n");
     for(int i = 0; i < size; i++) {
         printf("%s\n", arr[i]);
+    }
+}
+
+void free_p(char **arr, int size) {
+    for(int i = 0; i < size; i++) {
+        free(arr[i]);
     }
 }
 
@@ -132,6 +166,12 @@ int main() {
             s = file_enter(f);
             if(s != NULL) words_arr = parse(words_arr, s, &count);
         }
+        fclose(f);
     }
     output(words_arr, count);
+
+    free(s);
+    free_p(words_arr, count);
+    free(words_arr);
+    return 0;
 }
