@@ -56,14 +56,14 @@ void mem_all(char *word, int l_c, char **w_a, int *w_c) {       //выделен
 }
 
 char **parse(char **w_arr, char *s, int *counter) {                 //разбивка строк на слова
-    int isCLosingQuoteMark = 0, isFirstSpace = 0;
+    int isCLosingQuoteMark = 0, isFirstSpace = 0, isPrevSpecial = 0;
     int let_counter = 0, word_counter = *counter, word_mem = ADD_M, let_mem = ADD_M;
     char *word = malloc(ADD_M);
 
     for(int i = 0; i < strlen(s); i++) {
         if(s[i] != ' ') {                                           //ниже: обработка спецсимволов
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
-                if(i != 0 && isFirstSpace != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
+                if(i != 0 && isFirstSpace != 1 && isPrevSpecial != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
                     if(word_counter == word_mem - 1) {              //то нет предшествующего незаписанного слова
                         word_mem += ADD_M;
                         w_arr = realloc(w_arr, word_mem * sizeof(char*));
@@ -81,12 +81,14 @@ char **parse(char **w_arr, char *s, int *counter) {                 //разби
                 let_counter++;
                 mem_all(word, let_counter, w_arr, &word_counter);
                 let_counter = 0;
-                if(i == strlen(s)) {                    //если спецсимвол последний в строке, то больше не нужна обработка последнего слова вне цикла
-                    isFirstSpace = 1;
+                isPrevSpecial = 1;
+                if(i + 1 == strlen(s)) {                    //если спецсимвол последний в строке, то больше не нужна обработка последнего слова вне цикла
+                    isPrevSpecial = 1;
                 }
                 continue;
             }
             isFirstSpace = 0;
+            isPrevSpecial = 0;
             if(let_counter == let_mem - 1) {
                 let_mem += ADD_M;
                 word = realloc(word, let_mem);
@@ -118,7 +120,7 @@ char **parse(char **w_arr, char *s, int *counter) {                 //разби
             let_counter = 0;
         }
     }
-    if(isFirstSpace == 0) {                                 //запись последнего слова, если не пробел и не спецсимвол
+    if(isFirstSpace == 0 && isPrevSpecial == 0) {                                 //запись последнего слова, если не пробел и не спецсимвол
         mem_all(word, let_counter, w_arr, &word_counter);
     }
 
