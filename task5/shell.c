@@ -11,6 +11,7 @@ char *keyboard_enter(void) {
     if (!s) return NULL;
 
     fflush(stdout);
+    printf("input> ");
     while(fgets(s + k, ADD_M, stdin)) {
         str_length = strlen(s);
         if(s[str_length - 1] != '\n') {
@@ -48,10 +49,9 @@ char * file_enter(FILE *f) {
     return NULL;
 }
 
-char **parse(char *s, int *counter) {
+char **parse(char **w_arr, char *s, int *counter) {
     int isCLosingQuoteMark = 0, isFirstSpace = 0;
-    int let_counter = 0, word_counter = 0, word_mem = ADD_M, let_mem = ADD_M;
-    char **w_arr = malloc(ADD_M * sizeof(char*));
+    int let_counter = 0, word_counter = *counter, word_mem = ADD_M, let_mem = ADD_M;
     char *word = malloc(ADD_M);
 
     for(int i = 0; i < strlen(s); i++) {
@@ -90,17 +90,20 @@ char **parse(char *s, int *counter) {
             let_counter = 0;
         }
     }
-    word[let_counter] = '\0';
-    w_arr[word_counter] = malloc(let_counter + 1);
-    strcpy(w_arr[word_counter], word);
+    if(isFirstSpace == 0) {
+        word[let_counter] = '\0';
+        w_arr[word_counter] = malloc(let_counter + 1);
+        strcpy(w_arr[word_counter], word);
+        word_counter++;
+    }
 
     *counter = word_counter;
     return w_arr;
 }
 
 void output(char **arr, int size) {
-    printf("-----------\n");
-    for(int i = 0; i <= size; i++) {
+    printf("\n-----------\n");
+    for(int i = 0; i < size; i++) {
         printf("%s\n", arr[i]);
     }
 }
@@ -109,22 +112,26 @@ int main() {
     char c; int count = 0;
     FILE *f;
     char *s = malloc(ADD_M);
-    char **words_arr;
+    char **words_arr = malloc(ADD_M * sizeof(char*));
 
     printf("----------- SHELL INTERPRETER -----------\n");
     printf("To enter data from a file, press 'f'. To enter from the keyboard, press 'k': ");
     scanf("%c", &c);
     getchar();
 
-    printf("input> ");
     if(c == 'k') {
-        s = keyboard_enter();
+        while(s != NULL) {
+            s = keyboard_enter();
+            if(s != NULL) words_arr = parse(words_arr, s, &count);
+        }
     }
     if(c == 'f') {
-        printf("inputing from file..");
+        printf("Inputing from file..");
         f = fopen("tmp.txt", "r");
-        s = file_enter(f);
+        while(s != NULL) {
+            s = file_enter(f);
+            if(s != NULL) words_arr = parse(words_arr, s, &count);
+        }
     }
-    words_arr = parse(s, &count);
     output(words_arr, count);
 }
