@@ -130,7 +130,8 @@ char **parse(char **w_arr, char *s, int *counter) {
 }
 
 void output(char **arr, int size) {
-    printf("\n-----------\n");
+    printf("-----------\n");
+    if(size == 0) printf("No words entered.\n");
     for(int i = 0; i < size; i++) {
         printf("%s\n", arr[i]);
     }
@@ -143,29 +144,30 @@ void free_p(char **arr, int size) {
 }
 
 int main() {
-    char c; int count = 0;
+    char c[256]; int count = 0, isRightSym = 0;
     FILE *f;
     char *s = malloc(ADD_M);
     char **words_arr = malloc(ADD_M * sizeof(char*));
 
     printf("----------- SHELL INTERPRETER -----------\n");
     printf("To enter data from a file, press 'f'. To enter from the keyboard, press 'k': ");
-    scanf("%c", &c);
-    while(c != 'k' && c != 'f'){
-        printf("Wrong choice. Enter 'f' or 'k': ");
-        getchar();
-        scanf("%c", &c);
-    }
+    do{
+        scanf("%s", c);
+        if(strcasecmp(c, "k") == 0 || strcasecmp(c, "f") == 0) isRightSym = 1;
+        if(isRightSym == 0) printf("Wrong input. Try again (f/k): ");
+    } while(isRightSym == 0);
     getchar();
 
-    if(c == 'k') {
+    if(strcasecmp(c, "k") == 0) {
+        printf("To stop entering, press Ctrl+D.\n");
         while(s != NULL) {
             s = keyboard_enter();
             if(s != NULL) words_arr = parse(words_arr, s, &count);
         }
+        printf("stopped\n");
     }
-    if(c == 'f') {
-        printf("Inputing from file..");
+    if(strcasecmp(c, "f") == 0) {
+        printf("Inputing from file..\n");
         f = fopen("tmp.txt", "r");
         while(s != NULL) {
             s = file_enter(f);
