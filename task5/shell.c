@@ -3,91 +3,88 @@
 #include <string.h>
 
 #define ADD_M 10
-#define END_WORD "end"
 
-char ** keyboard_enter(int *c){
-    char ** words_arr;   
-    int unsigned counter = 0;
+char *keyboard_enter(void) {
     int unsigned str_length, k = 0;
-    int unsigned n = ADD_M;     
 
-    char * s = malloc(ADD_M);
+    char *s = malloc(ADD_M);
     if (!s) return NULL;
-    words_arr = malloc(n * sizeof(char *)); 
 
-    do {
-        while(fgets(s + k, ADD_M, stdin)){
-            str_length = strlen(s);
-            if(s[str_length - 1] != '\n'){
-                k = k + ADD_M - 1;
-                s = realloc(s, k + ADD_M);
+    fflush(stdout);
+    while(fgets(s + k, ADD_M, stdin)) {
+        str_length = strlen(s);
+        if(s[str_length - 1] != '\n') {
+            k = k + ADD_M - 1;
+            s = realloc(s, k + ADD_M);
 
-                if(!s) return NULL;
-            }
-            else{
-                s[str_length - 1] = '\0';
-                break;
-            }
+            if(!s) return NULL;
         }
-
-        if (strcmp(END_WORD, s) == 0) {     
-            break;
+        else{
+            s[str_length - 1] = '\0';
+            return s;
         }
-
-        if (counter >= n) {                             
-            n += ADD_M;
-            words_arr = realloc(words_arr, n * sizeof(char *));
-        }
-
-        words_arr[counter] = malloc(str_length + 1);
-        strcpy(words_arr[counter], s);
-        counter++;
-    } while(1);
-
-    *c = counter;
-    return words_arr;
+    }
+    return NULL;
 }
 
-char ** file_enter(FILE *f, int *c) {
-    char ** words_arr;   
-    int unsigned s_len = 0, counter = 0;
+char * file_enter(FILE *f) {
+    int unsigned s_len = 0;
     int unsigned k = 0;
-    int unsigned n = ADD_M;     
 
     char * s = malloc(ADD_M);
     if (!s) return NULL;
-    words_arr = malloc(n * sizeof(char *)); 
 
-    do {
-        while(fgets(s + k, ADD_M, f)) {
-            s_len = strlen(s);
-            if(s[s_len - 1] != '\n' && !feof(f)) {
-                k = k + ADD_M - 1;
-                s = realloc(s, k + ADD_M);
-                if(!s) return NULL;
-            } else {
-                if(s[s_len - 1] == '\n') s[s_len - 1] = '\0';
-                break;
-            }
+    while(fgets(s + k, ADD_M, f)) {
+        s_len = strlen(s);
+        if(s[s_len - 1] != '\n' && !feof(f)) {
+            k = k + ADD_M - 1;
+            s = realloc(s, k + ADD_M);
+            if(!s) return NULL;
+        } else {
+            if(s[s_len - 1] == '\n') s[s_len - 1] = '\0';
+            return s;
         }
-
-        if (counter == n - 1) {                             
-            n += ADD_M;
-            words_arr = realloc(words_arr, n * sizeof(char *));
-        }
-
-        words_arr[counter] = malloc(strlen(s) + 1);
-        strcpy(words_arr[counter], s);
-        counter++;
-    } while(!feof(f));
-
-    *c = counter;
-    return words_arr;
+    }
+    return NULL;
 }
 
-void output(char ** arr, int size){
-    printf("\n");
-    for(int i = 0; i < size; i++){
+char **parse(char *s, int *counter) {
+    //int isCLosingQuoteMark = 0, isFirstSpace = 0;
+    int let_counter = 0, word_counter = 0, word_mem = ADD_M, let_mem = ADD_M;
+    char **w_arr = malloc(ADD_M * sizeof(char*));
+    char *word = malloc(ADD_M);
+
+    for(int i = 0; i < strlen(s); i++) {
+        if(s[i] != ' ') {
+            word[let_counter] = s[i];
+            let_counter++;
+            if(let_counter == let_mem - 1) {
+                let_mem += ADD_M;
+                word = realloc(word, let_mem);
+            }
+        } else {
+            word[let_counter] = '\0';
+            w_arr[word_counter] = malloc(let_counter + 1);
+            strcpy(w_arr[word_counter], word);
+            word_counter++;
+            if(word_counter == word_mem - 1) {
+                word_mem += ADD_M;
+                w_arr = realloc(w_arr, word_mem * sizeof(char*));
+            }
+            let_counter = 0;
+        }
+    }
+    word[let_counter] = '\0';
+    w_arr[word_counter] = malloc(let_counter + 1);
+    strcpy(w_arr[word_counter], word);
+
+    *counter = word_counter;
+    return w_arr;
+}
+
+void output(char ** arr, int size) {
+    printf("-----------\n");
+    for(int i = 0; i <= size; i++) {
         printf("%s\n", arr[i]);
     }
 }
@@ -95,18 +92,22 @@ void output(char ** arr, int size){
 int main() {
     char c; int count = 0;
     FILE *f;
-    char ** words_arr;
+    char *s = malloc(ADD_M);
+    char **words_arr;
 
     printf("----------- SHELL INTERPRETER -----------\n");
     printf("To enter data from a file, press 'f'. To enter from the keyboard, press 'k': ");
     scanf("%c", &c);
+    getchar();
 
+    printf("input> ");
     if(c == 'k') {
-        words_arr = keyboard_enter(&count);
+        s = keyboard_enter();
     }
     if(c == 'f') {
         f = fopen("tmp.txt", "r");
-        words_arr = file_enter(f, &count);
+        s = file_enter(f);
     }
+    words_arr = parse(s, &count);
     output(words_arr, count);
 }
