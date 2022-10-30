@@ -82,9 +82,6 @@ char **parse(char **w_arr, char *s, int *counter) {                 //разби
                 mem_all(word, let_counter, w_arr, &word_counter);
                 let_counter = 0;
                 isPrevSpecial = 1;
-                if(i + 1 == strlen(s)) {                    //если спецсимвол последний в строке, то больше не нужна обработка последнего слова вне цикла
-                    isPrevSpecial = 1;
-                }
                 continue;
             }
             isFirstSpace = 0;
