@@ -81,11 +81,10 @@ char **parse(char **w_arr, char *s, int *counter) {                 //разби
                 let_counter++;
                 mem_all(word, let_counter, w_arr, &word_counter);
                 let_counter = 0;
-                i++;
                 if(i == strlen(s)) {                    //если спецсимвол последний в строке, то больше не нужна обработка последнего слова вне цикла
                     isFirstSpace = 1;
-                    continue;
                 }
+                continue;
             }
             isFirstSpace = 0;
             if(let_counter == let_mem - 1) {
@@ -115,7 +114,7 @@ char **parse(char **w_arr, char *s, int *counter) {                 //разби
                 word_mem += ADD_M;
                 w_arr = realloc(w_arr, word_mem * sizeof(char*));
             }
-            mem_all(word, let_counter, w_arr, &word_counter);
+            if(let_counter != 0) mem_all(word, let_counter, w_arr, &word_counter);
             let_counter = 0;
         }
     }
@@ -133,12 +132,6 @@ void output(char **arr, int size) {                         //вывод мас�
     if(size == 0) printf("No words entered.\n");
     for(int i = 0; i < size; i++) {
         printf("%s\n", arr[i]);
-    }
-}
-
-void free_p(char **arr, int size) {
-    for(int i = 0; i < size; i++) {
-        free(arr[i]);
     }
 }
 
@@ -178,7 +171,6 @@ int main() {
     output(words_arr, count);
 
     free(s);
-    free_p(words_arr, count);
     free(words_arr);
     return 0;
 }
