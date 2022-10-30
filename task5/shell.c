@@ -49,20 +49,33 @@ char * file_enter(FILE *f) {
 }
 
 char **parse(char *s, int *counter) {
-    //int isCLosingQuoteMark = 0, isFirstSpace = 0;
+    int isCLosingQuoteMark = 0, isFirstSpace = 0;
     int let_counter = 0, word_counter = 0, word_mem = ADD_M, let_mem = ADD_M;
     char **w_arr = malloc(ADD_M * sizeof(char*));
     char *word = malloc(ADD_M);
 
     for(int i = 0; i < strlen(s); i++) {
         if(s[i] != ' ') {
-            word[let_counter] = s[i];
-            let_counter++;
             if(let_counter == let_mem - 1) {
                 let_mem += ADD_M;
                 word = realloc(word, let_mem);
             }
+            if(s[i] == '"' && isCLosingQuoteMark == 0) {
+                isCLosingQuoteMark = 1;
+                continue;
+            } 
+            if(s[i] == '"' && isCLosingQuoteMark == 1) {
+                isCLosingQuoteMark = 0;
+                continue;
+            }
+            word[let_counter] = s[i];
+            let_counter++;
         } else {
+            if(isCLosingQuoteMark == 1) {
+                word[let_counter] = ' ';
+                let_counter++;
+                continue;
+            }
             word[let_counter] = '\0';
             w_arr[word_counter] = malloc(let_counter + 1);
             strcpy(w_arr[word_counter], word);
@@ -105,6 +118,7 @@ int main() {
         s = keyboard_enter();
     }
     if(c == 'f') {
+        printf("inputing from file..");
         f = fopen("tmp.txt", "r");
         s = file_enter(f);
     }
