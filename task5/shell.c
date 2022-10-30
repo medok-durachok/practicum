@@ -56,6 +56,7 @@ char **parse(char *s, int *counter) {
 
     for(int i = 0; i < strlen(s); i++) {
         if(s[i] != ' ') {
+            isFirstSpace = 0;
             if(let_counter == let_mem - 1) {
                 let_mem += ADD_M;
                 word = realloc(word, let_mem);
@@ -76,6 +77,8 @@ char **parse(char *s, int *counter) {
                 let_counter++;
                 continue;
             }
+            if(isFirstSpace != 0) continue;
+            isFirstSpace = 1;
             word[let_counter] = '\0';
             w_arr[word_counter] = malloc(let_counter + 1);
             strcpy(w_arr[word_counter], word);
@@ -95,7 +98,7 @@ char **parse(char *s, int *counter) {
     return w_arr;
 }
 
-void output(char ** arr, int size) {
+void output(char **arr, int size) {
     printf("-----------\n");
     for(int i = 0; i <= size; i++) {
         printf("%s\n", arr[i]);
