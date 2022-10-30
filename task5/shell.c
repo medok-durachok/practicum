@@ -49,6 +49,13 @@ char * file_enter(FILE *f) {
     return NULL;
 }
 
+void mem_all(char *word, int l_c, char **w_a, int *w_c) {
+    word[l_c] = '\0';
+    w_a[*w_c] = malloc(l_c + 1);
+    strcpy(w_a[*w_c], word);
+    (*w_c)++;
+}
+
 char **parse(char **w_arr, char *s, int *counter) {
     int isCLosingQuoteMark = 0, isFirstSpace = 0;
     int let_counter = 0, word_counter = *counter, word_mem = ADD_M, let_mem = ADD_M;
@@ -58,15 +65,11 @@ char **parse(char **w_arr, char *s, int *counter) {
         if(s[i] != ' ') {
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
                 if(i != 0 && isFirstSpace != 1) {
-                    word[let_counter] = '\0';
-                    w_arr[word_counter] = malloc(let_counter + 1);
-                    strcpy(w_arr[word_counter], word);
-                    word_counter++;
-
                     if(word_counter == word_mem - 1) {
                         word_mem += ADD_M;
                         w_arr = realloc(w_arr, word_mem * sizeof(char*));
                     }
+                    mem_all(word, let_counter, w_arr, &word_counter);
                 }
 
                 let_counter = 0;
@@ -77,10 +80,7 @@ char **parse(char **w_arr, char *s, int *counter) {
                     word[let_counter] = s[i];
                 }
                 let_counter++;
-                word[let_counter] = '\0';
-                w_arr[word_counter] = malloc(let_counter + 1);
-                strcpy(w_arr[word_counter], word);
-                word_counter++;
+                mem_all(word, let_counter, w_arr, &word_counter);
                 let_counter = 0;
                 i++;
                 if(i == strlen(s)) {
@@ -116,18 +116,12 @@ char **parse(char **w_arr, char *s, int *counter) {
                 word_mem += ADD_M;
                 w_arr = realloc(w_arr, word_mem * sizeof(char*));
             }
-            word[let_counter] = '\0';
-            w_arr[word_counter] = malloc(let_counter + 1);
-            strcpy(w_arr[word_counter], word);
-            word_counter++;
+            mem_all(word, let_counter, w_arr, &word_counter);
             let_counter = 0;
         }
     }
     if(isFirstSpace == 0) {
-        word[let_counter] = '\0';
-        w_arr[word_counter] = malloc(let_counter + 1);
-        strcpy(w_arr[word_counter], word);
-        word_counter++;
+        mem_all(word, let_counter, w_arr, &word_counter);
     }
 
     free(word);
