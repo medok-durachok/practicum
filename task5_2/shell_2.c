@@ -13,7 +13,7 @@ char *keyboard_enter(void) {                        //ввод строк с к�
     if (!s) return NULL;
 
     fflush(stdout);
-    printf("input> ");
+    printf("> ");
     while(fgets(s + k, ADD_M, stdin)) {
         str_length = strlen(s);
         if(s[str_length - 1] != '\n') {
@@ -59,14 +59,14 @@ void mem_all(char *word, int l_c, char **w_a, int *w_c) {       //выделен
 }
 
 char **parse(char **w_arr, char *s, int *counter, int *current_args) {                 //разбивка строк на слова
-    int isCLosingQuoteMark = 0, isFirstSpace = 0, isPrevSpecial = 0;
-    int let_counter = 0, word_counter = *counter, word_mem = ADD_M, let_mem = ADD_M;
+    int is_closing_quote_mark = 0, is_first_space = 0, is_prev_special = 0;
+    int let_counter = 0, word_counter = *counter, word_mem = ((*counter) / 10 + 1) * ADD_M, let_mem = ADD_M;
     char *word = malloc(ADD_M);
 
     for(int i = 0; i < strlen(s); i++) {
         if(s[i] != ' ') {                                           //ниже: обработка спецсимволов
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
-                if(i != 0 && isFirstSpace != 1 && isPrevSpecial != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
+                if(i != 0 && is_first_space != 1 && is_prev_special != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
                     if(word_counter == word_mem - 1) {              //то нет предшествующего незаписанного слова
                         word_mem += ADD_M;
                         w_arr = realloc(w_arr, word_mem * sizeof(char*));
@@ -86,33 +86,33 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args) {          
                 mem_all(word, let_counter, w_arr, &word_counter);
                 (*current_args)++;
                 let_counter = 0;
-                isPrevSpecial = 1;
+                is_prev_special = 1;
                 continue;
             }
-            isFirstSpace = 0;
-            isPrevSpecial = 0;
+            is_first_space = 0;
+            is_prev_special = 0;
             if(let_counter == let_mem - 1) {
                 let_mem += ADD_M;
                 word = realloc(word, let_mem);
             }
-            if(s[i] == '"' && isCLosingQuoteMark == 0) {        //обработка кавычек
-                isCLosingQuoteMark = 1;
+            if(s[i] == '"' && is_closing_quote_mark == 0) {        //обработка кавычек
+                is_closing_quote_mark = 1;
                 continue;
             } 
-            if(s[i] == '"' && isCLosingQuoteMark == 1) {
-                isCLosingQuoteMark = 0;
+            if(s[i] == '"' && is_closing_quote_mark == 1) {
+                is_closing_quote_mark = 0;
                 continue;
             }
             word[let_counter] = s[i];
             let_counter++;
         } else {
-            if(isCLosingQuoteMark == 1) {               //обработка пробелов внутри кавычек
+            if(is_closing_quote_mark == 1) {               //обработка пробелов внутри кавычек
                 word[let_counter] = ' ';
                 let_counter++;
                 continue;
             }
-            if(isFirstSpace != 0) continue;
-            isFirstSpace = 1;
+            if(is_first_space != 0) continue;
+            is_first_space = 1;
 
             if(word_counter == word_mem - 1) {
                 word_mem += ADD_M;
@@ -125,7 +125,11 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args) {          
             let_counter = 0;
         }
     }
-    if(isFirstSpace == 0 && isPrevSpecial == 0) {                                 //запись последнего слова, если не пробел и не спецсимвол
+    if(word_counter == word_mem - 1) {
+        word_mem += ADD_M;
+        w_arr = realloc(w_arr, word_mem * sizeof(char*));
+    }
+    if(is_first_space == 0 && is_prev_special == 0) {                                 //запись последнего слова, если не пробел и не спецсимвол
         mem_all(word, let_counter, w_arr, &word_counter);
         (*current_args)++;
     }
@@ -147,36 +151,35 @@ int cd(char **argv, int argc) {
     char *s;
     if (argc == 1) {
         s = getenv("HOME");
-        printf("Path : %s\n", s);
+        printf("Home: %s\n", s);
         if (s == NULL) {
             return 1;
         } else chdir(s);
     } else if (argc > 2) {
         fprintf(stderr, "cd command accepts only 1 argument\n");
         return 1;
-    } else if (chdir(argv[1])) {
+    } else if (chdir(argv[1]) != 0) {
         perror("cd error");
         return 0;
     }
     return 0;
 }
 
-int command_exec(char **argv, int argc, int num) {
+int command_exec(char **argv, int argc) {
     pid_t pid;
     int status;
-    printf("%d\n", argc - num);
-    if(strcmp(argv[argc - num], "cd") == 0) {
-        return cd(argv, num);
+    if(strcmp(argv[0], "cd") == 0) {
+        return cd(argv, argc);
     } else {
         pid = fork();
         if(pid == -1) {
             perror("error");
         } else  if (pid == 0) {                                    
-            if(execv(argv[argc - num], argv) == -1) perror("error");
+            if(execv(argv[0], argv) == -1) perror("error");
             exit(0);
         } else {
             wait(&status);
-            printf("father-process\n");
+            //printf("father-process\n");
         }
     }
     return 0;
@@ -203,7 +206,12 @@ int main(int argc, char *argv[]) {
             s = keyboard_enter();
             if(s != NULL) {
                 words_arr = parse(words_arr, s, &count, &cur_count);
-                command_exec(words_arr, count, cur_count);
+                char *cur_arr[cur_count + 1];
+                for(int i = 0; i < cur_count; i++) {
+                    cur_arr[i] = words_arr[count - cur_count + i];
+                }
+                cur_arr[cur_count] = NULL;
+                command_exec(cur_arr, cur_count);
                 cur_count = 0;
             }
         }
