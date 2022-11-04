@@ -21,7 +21,7 @@ char *keyboard_enter(void) {                        //ввод строк с к�
             s = realloc(s, k + ADD_M);
 
             if(!s) return NULL;
-        } else{
+        } else {
             s[str_length - 1] = '\0';
             return s;
         }
@@ -147,11 +147,10 @@ void output(char **arr, int size) {                         //вывод мас�
     }
 }
 
-int cd(char **argv, int argc) {
+int cd(char **argv, int argc) {                                             //выполнение cd
     char *s;
     if (argc == 1) {
         s = getenv("HOME");
-        printf("Home: %s\n", s);
         if (s == NULL) {
             return 1;
         } else chdir(s);
@@ -160,12 +159,12 @@ int cd(char **argv, int argc) {
         return 1;
     } else if (chdir(argv[1]) != 0) {
         perror("cd error");
-        return 0;
+        return 1;
     }
     return 0;
 }
 
-int command_exec(char **argv, int argc) {
+int command_exec(char **argv, int argc) {                                   //выполнение команд
     pid_t pid;
     int status;
     if(strcmp(argv[0], "") == 0) {
@@ -179,6 +178,7 @@ int command_exec(char **argv, int argc) {
         pid = fork();
         if(pid == -1) {
             perror("error");
+            return 1;
         } else  if (pid == 0) {                                    
             if(execv(argv[0], argv) == -1) perror("error");
             exit(0);
@@ -189,8 +189,7 @@ int command_exec(char **argv, int argc) {
     return 0;
 }
 
-void parse_exec(char **words_arr, char *s, int *count) {
-    fflush(stdout);
+void parse_exec(char **words_arr, char *s, int *count) {                            //создаем подмассив из текущей строки
     int cur_count = 0, c_count = *count;
     words_arr = parse(words_arr, s, &c_count, &cur_count);
     char *cur_arr[cur_count + 1];
@@ -200,6 +199,7 @@ void parse_exec(char **words_arr, char *s, int *count) {
     cur_arr[cur_count] = NULL;
 
     command_exec(cur_arr, cur_count);
+    printf("\n");
     *count = c_count;
 }
 
@@ -231,9 +231,7 @@ int main(int argc, char *argv[]) {
         f = fopen(argv[1], "r");
         while(s != NULL) {
             s = file_enter(f);
-            if(s != NULL) {
-                parse_exec(words_arr, s, &count);
-            }
+            if(s != NULL) parse_exec(words_arr, s, &count);
         }
         fclose(f);
     }
