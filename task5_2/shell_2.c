@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define ADD_M 10
+#define ADD_M 20
 
 char *keyboard_enter(void) {                        //ввод строк с клавиатуры
     int unsigned str_length, k = 0;
@@ -21,8 +21,7 @@ char *keyboard_enter(void) {                        //ввод строк с к�
             s = realloc(s, k + ADD_M);
 
             if(!s) return NULL;
-        }
-        else{
+        } else{
             s[str_length - 1] = '\0';
             return s;
         }
@@ -30,21 +29,21 @@ char *keyboard_enter(void) {                        //ввод строк с к�
     return NULL;
 }
 
-char * file_enter(FILE *f) {                        //ввод из файла
-    int unsigned s_len = 0;
-    int unsigned k = 0;
+char *file_enter(FILE *f) {                        //ввод из файла
+   int unsigned str_length = 0, k = 0;
 
-    char * s = malloc(ADD_M);
+    char *s = malloc(ADD_M);
     if (!s) return NULL;
 
     while(fgets(s + k, ADD_M, f)) {
-        s_len = strlen(s);
-        if(s[s_len - 1] != '\n' && !feof(f)) {
+        str_length = strlen(s);
+        if(s[str_length - 1] != '\n' && !feof(f)) {
             k = k + ADD_M - 1;
             s = realloc(s, k + ADD_M);
+
             if(!s) return NULL;
         } else {
-            if(s[s_len - 1] == '\n') s[s_len - 1] = '\0';
+            if(s[str_length - 1] == '\n') s[str_length - 1] = '\0';
             return s;
         }
     }
@@ -67,7 +66,7 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args) {          
         if(s[i] != ' ') {                                           //ниже: обработка спецсимволов
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
                 if(i != 0 && is_first_space != 1 && is_prev_special != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
-                    if(word_counter == word_mem - 1) {              //то нет предшествующего незаписанного слова
+                    if(word_counter == word_mem) {              //то нет предшествующего незаписанного слова
                         word_mem += ADD_M;
                         w_arr = realloc(w_arr, word_mem * sizeof(char*));
                     }
@@ -114,22 +113,23 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args) {          
             if(is_first_space != 0) continue;
             is_first_space = 1;
 
-            if(word_counter == word_mem - 1) {
-                word_mem += ADD_M;
-                w_arr = realloc(w_arr, word_mem * sizeof(char*));
-            }
             if(let_counter != 0) {
+                if(word_counter == word_mem) {
+                    word_mem += ADD_M;
+                    w_arr = realloc(w_arr, word_mem * sizeof(char*));
+                }
                 mem_all(word, let_counter, w_arr, &word_counter);
                 (*current_args)++;
             }
             let_counter = 0;
         }
     }
-    if(word_counter == word_mem - 1) {
-        word_mem += ADD_M;
-        w_arr = realloc(w_arr, word_mem * sizeof(char*));
-    }
+
     if(is_first_space == 0 && is_prev_special == 0) {                                 //запись последнего слова, если не пробел и не спецсимвол
+        if(word_counter == word_mem) {
+            word_mem += ADD_M;
+            w_arr = realloc(w_arr, word_mem * sizeof(char*));
+        }
         mem_all(word, let_counter, w_arr, &word_counter);
         (*current_args)++;
     }
@@ -168,6 +168,11 @@ int cd(char **argv, int argc) {
 int command_exec(char **argv, int argc) {
     pid_t pid;
     int status;
+    if(strcmp(argv[0], "") == 0) {
+        printf("Empty string\n");
+        return 1;
+    }
+
     if(strcmp(argv[0], "cd") == 0) {
         return cd(argv, argc);
     } else {
@@ -179,20 +184,33 @@ int command_exec(char **argv, int argc) {
             exit(0);
         } else {
             wait(&status);
-            //printf("father-process\n");
         }
     }
     return 0;
 }
 
+void parse_exec(char **words_arr, char *s, int *count) {
+    fflush(stdout);
+    int cur_count = 0, c_count = *count;
+    words_arr = parse(words_arr, s, &c_count, &cur_count);
+    char *cur_arr[cur_count + 1];
+    for(int i = 0; i < cur_count; i++) {
+        cur_arr[i] = words_arr[c_count - cur_count + i];
+    }
+    cur_arr[cur_count] = NULL;
+
+    command_exec(cur_arr, cur_count);
+    *count = c_count;
+}
+
 int main(int argc, char *argv[]) {
-    char c[256]; int count = 0, is_right_sym = 0, cur_count = 0;
+    char c[256]; int count = 0, is_right_sym = 0;
     FILE *f;
     char *s = malloc(ADD_M);
     char **words_arr = malloc(ADD_M * sizeof(char*));
 
     printf("----------- SHELL INTERPRETER -----------\n");
-    printf("To enter data from a file, press 'f'. To enter from the keyboard, press 'k': ");
+    printf("To enter data from a file press 'f'. To enter from the keyboard press 'k': ");
     do {                                                     //проверка правильности введеных символов
         scanf("%s", c);
         if(strcasecmp(c, "k") == 0 || strcasecmp(c, "f") == 0) is_right_sym = 1;
@@ -201,19 +219,10 @@ int main(int argc, char *argv[]) {
     getchar();
 
     if(strcasecmp(c, "k") == 0) {
-        printf("To stop entering, press Ctrl+D.\n");
+        printf("To stop entering press Ctrl+D.\n");
         while(s != NULL) {
             s = keyboard_enter();
-            if(s != NULL) {
-                words_arr = parse(words_arr, s, &count, &cur_count);
-                char *cur_arr[cur_count + 1];
-                for(int i = 0; i < cur_count; i++) {
-                    cur_arr[i] = words_arr[count - cur_count + i];
-                }
-                cur_arr[cur_count] = NULL;
-                command_exec(cur_arr, cur_count);
-                cur_count = 0;
-            }
+            if(s != NULL) parse_exec(words_arr, s, &count);
         }
         printf("stopped\n");
     }
@@ -222,12 +231,14 @@ int main(int argc, char *argv[]) {
         f = fopen(argv[1], "r");
         while(s != NULL) {
             s = file_enter(f);
-            if(s != NULL) words_arr = parse(words_arr, s, &count, &cur_count);
+            if(s != NULL) {
+                parse_exec(words_arr, s, &count);
+            }
         }
         fclose(f);
     }
 
-    output(words_arr, count);
+    printf("\n-----------------------------------------\n");
 
     free(s);
     free(words_arr);
