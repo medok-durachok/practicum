@@ -33,7 +33,7 @@ int command_exec(char **argv, int argc) {                                   //в
             perror("error");
             return 1;
         } else  if (pid == 0) {                                    
-            if(execv(argv[0], argv) == -1) perror("error");
+            if(execvp(argv[0], argv) == -1) perror("error");
             exit(0);
         } else {
             wait(&status);
