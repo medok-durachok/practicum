@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define ADD_M 20
 
@@ -15,7 +16,7 @@ char *file_enter(FILE *f);
 
 void mem_all(char *word, int l_c, char **w_a, int *w_c);
 
-char **parse(char **w_arr, char *s, int *counter, int *current_args);
+char **parse(char **w_arr, char *s, int *counter, int *current_args, int *rd, int *pp);
 
 void output(char **arr, int size);
 
@@ -23,6 +24,8 @@ void parse_exec(char **words_arr, char *s, int *count);
 
 int cd(char **argv, int argc);
 
-int command_exec(char **argv, int argc);
+int command_exec(char **argv, int argc, int redir_flag, int pipe_flag);
+
+int find_sym(char ** arr, int n, char *c);
 
 #endif
