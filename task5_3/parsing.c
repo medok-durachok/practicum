@@ -50,8 +50,8 @@ void mem_all(char *word, int l_c, char **w_a, int *w_c) {       //выделен
     (*w_c)++;
 }
 
-char **parse(char **w_arr, char *s, int *counter, int *current_args, int *rd, int *pp) {                 //разбивка строк на слова
-    int is_closing_quote_mark = 0, is_first_space = 0, is_prev_special = 0, is_redirection = -1, is_pipe = 0;
+char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd, short *pp) {                 //разбивка строк на слова
+    short is_closing_quote_mark = 0, is_first_space = 0, is_prev_special = 0, is_redirection = -1, is_pipe = 0;         //флаги на редирекшн нужно разделить!!
     int let_counter = 0, word_counter = *counter, word_mem = ((*counter) / 10 + 1) * ADD_M, let_mem = ADD_M;
     char *word = malloc(ADD_M);
 
@@ -150,7 +150,7 @@ void output(char **arr, int size) {                         //вывод мас�
 }
 
 void parse_exec(char **words_arr, char *s, int *count) {                            //создаем подмассив из текущей строки
-    int cur_count = 0, c_count = *count, pipe_flag = 0, redir_flag = -1;
+    int cur_count = 0, c_count = *count; short pipe_flag = 0, redir_flag = -1;
     words_arr = parse(words_arr, s, &c_count, &cur_count, &redir_flag, &pipe_flag);
     char *cur_arr[cur_count + 1];
     for(int i = 0; i < cur_count; i++) {

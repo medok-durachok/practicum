@@ -17,7 +17,36 @@ int cd(char **argv, int argc) {                                             //в
     return 0;
 }
 
-int command_exec(char **argv, int argc, int is_redirection, int is_pipe) {                                   //выполнение команд
+void redirection(char **argv, int argc, short redir_type) {
+    int index, f;
+        if(redir_type == 0) {
+            index = find_sym(argv, argc, "<");                                      //здесь можно поймать ошибку при >/</>> в конце
+            f = open(argv[index + 1], O_RDONLY);
+            if(f == -1) {
+                fprintf(stderr, "wrong reference to file.\n");
+                exit(0);
+            }
+            dup2(f, 0);
+            close(f);
+        } else {
+            if(redir_type == 1) {
+                index = find_sym(argv, argc, ">");                                      
+                f = open(argv[index + 1], O_WRONLY | O_TRUNC | O_CREAT, 0664);
+            } else {
+                index = find_sym(argv, argc, ">>");                                      
+                f = open(argv[index + 1], O_WRONLY | O_APPEND | O_CREAT, 0664);
+            }
+            if(f == -1) {
+                fprintf(stderr, "wrong redirection output to file.\n");
+                exit(0);
+            }
+            dup2(f, 1);
+            close(f);
+        }
+        argv[index] = NULL;
+}
+
+int command_exec(char **argv, int argc, short is_redirection, short is_pipe) {                                   //выполнение команд
     pid_t pid;
     int status;
     if(strcmp(argv[0], "") == 0) {
@@ -25,7 +54,23 @@ int command_exec(char **argv, int argc, int is_redirection, int is_pipe) {      
         return 1;
     }
 
-    if(is_redirection != -1) {
+    /*if(is_pipe == 1) {
+        int fd[2];
+        pipe(fd);
+
+        if(fork() == 0) {
+            dup2(fd[1], 1);
+            close(fd[1]);
+            close(fd[0]);
+            execlp(argv[0], argv[0], NULL);
+        }
+        dup2(fd[0], 0);
+        close(fd[0]);
+        close(fd[1]);
+        execlp(argv[argc - 1], argv[argc - 1], NULL);
+    }*/
+
+    /*if(is_redirection != -1) {
         int index, f;
         if(is_redirection == 0) {
             index = find_sym(argv, argc, "<");                                      //здесь можно поймать ошибку при >/</>> в конце
@@ -52,9 +97,8 @@ int command_exec(char **argv, int argc, int is_redirection, int is_pipe) {      
             close(f);
         }
         argv[index] = NULL;
-    }
+    }*/
 
-cont:
     if(strcmp(argv[0], "cd") == 0) {
         return cd(argv, argc);
     } else {
@@ -62,7 +106,8 @@ cont:
         if(pid == -1) {
             perror("error");
             return 1;
-        } else  if (pid == 0) {                                    
+        } else  if (pid == 0) {  
+            if(is_redirection != -1) redirection(argv, argc, is_redirection);                                  
             if(execvp(argv[0], argv) == -1) perror("error");
             exit(0);
         } else {
