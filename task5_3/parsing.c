@@ -50,8 +50,8 @@ void mem_all(char *word, int l_c, char **w_a, int *w_c) {       //выделен
     (*w_c)++;
 }
 
-char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd, short *pp) {                 //разбивка строк на слова
-    short is_closing_quote_mark = 0, is_first_space = 0, is_prev_special = 0, is_redirection = -1, is_pipe = 0;         //флаги на редирекшн нужно разделить!!
+char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd_i, short *rd_o, short *pp) {                 //разбивка строк на слова
+    short is_closing_quote_mark = 0, is_first_space = 0, is_prev_special = 0, is_redirection_out = 0, is_redirection_in = 0, is_pipe = 0;         
     int let_counter = 0, word_counter = *counter, word_mem = ((*counter) / 10 + 1) * ADD_M, let_mem = ADD_M;
     char *word = malloc(ADD_M);
 
@@ -59,8 +59,8 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd, 
         if(s[i] != ' ') {                                           //ниже: обработка спецсимволов
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
                 if(s[i] == '|') is_pipe = 1;
-                if(s[i] == '<') is_redirection = 0;
-                if(s[i] == '>') is_redirection = 1;
+                if(s[i] == '<') is_redirection_out = 1;
+                if(s[i] == '>') is_redirection_in = 1;
 
                 if(i != 0 && is_first_space != 1 && is_prev_special != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
                     if(word_counter == word_mem) {              //то нет предшествующего незаписанного слова
@@ -78,7 +78,7 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd, 
                     i++;
                     word[let_counter] = s[i];
 
-                    if(s[i] == '>') is_redirection = 2;
+                    if(s[i] == '>') is_redirection_in = 2;
                 }
                 let_counter++;
                 mem_all(word, let_counter, w_arr, &word_counter);
@@ -135,7 +135,8 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd, 
 
     free(word);
     *counter = word_counter;
-    *rd = is_redirection;
+    *rd_i = is_redirection_in;
+    *rd_o = is_redirection_out;
     *pp = is_pipe;
 
     return w_arr;
@@ -150,15 +151,15 @@ void output(char **arr, int size) {                         //вывод мас�
 }
 
 void parse_exec(char **words_arr, char *s, int *count) {                            //создаем подмассив из текущей строки
-    int cur_count = 0, c_count = *count; short pipe_flag = 0, redir_flag = -1;
-    words_arr = parse(words_arr, s, &c_count, &cur_count, &redir_flag, &pipe_flag);
+    int cur_count = 0, c_count = *count; short pipe_flag = 0, redir_in = -1, redir_out = -1;
+    words_arr = parse(words_arr, s, &c_count, &cur_count, &redir_in, &redir_out, &pipe_flag);
     char *cur_arr[cur_count + 1];
     for(int i = 0; i < cur_count; i++) {
         cur_arr[i] = words_arr[c_count - cur_count + i];
     }
     cur_arr[cur_count] = NULL;
 
-    command_exec(cur_arr, cur_count, redir_flag, pipe_flag);
+    command_exec(cur_arr, cur_count, redir_in, redir_out, pipe_flag);
     *count = c_count;
 }
 
