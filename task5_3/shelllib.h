@@ -32,4 +32,6 @@ int command_exec(char **argv, int argc, short is_redirection_in, short is_redire
 
 int find_sym(char ** arr, int n, char *c);
 
+char **sub_create(char **arr, int i1, int i2);
+
 #endif
