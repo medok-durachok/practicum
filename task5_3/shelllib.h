@@ -26,6 +26,8 @@ int cd(char **argv, int argc);
 
 void redirection(char **argv, int argc, short redir_in, short redir_out);
 
+void pipeline(char **argv, int argc, int pipes);
+
 int command_exec(char **argv, int argc, short is_redirection_in, short is_redirection_out, short is_pipe);
 
 int find_sym(char ** arr, int n, char *c);
