@@ -58,7 +58,7 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd_i
     for(int i = 0; i < strlen(s); i++) {
         if(s[i] != ' ') {                                           //ниже: обработка спецсимволов
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
-                if(s[i] == '|') is_pipe = 1;
+                if(s[i] == '|') is_pipe++;                          //сделаем счетчик команд конвейера
                 if(s[i] == '<') is_redirection_out = 1;
                 if(s[i] == '>') is_redirection_in = 1;
 
@@ -79,6 +79,7 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd_i
                     word[let_counter] = s[i];
 
                     if(s[i] == '>') is_redirection_in = 2;
+                    if(s[i] == '|') is_pipe--;                          //исключим из счетчика вариант "||" !!
                 }
                 let_counter++;
                 mem_all(word, let_counter, w_arr, &word_counter);
