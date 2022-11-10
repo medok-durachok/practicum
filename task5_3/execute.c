@@ -18,7 +18,7 @@ int cd(char **argv, int argc) {                                             //в
 }
 
 void redirection(char **argv, int argc, short redir_in, short redir_out) {
-    int index, f, both = 0;
+    int index, f;
 
     printf("in %d out %d\n", redir_in, redir_out);
 
@@ -34,7 +34,8 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
     }
     if(redir_in != 0) {
         if(redir_in == 1) {
-            index = find_sym(argv, argc, ">");                                      
+            index = find_sym(argv, argc, ">"); 
+            printf("%d\n", index);                                     
             f = open(argv[index + 1], O_WRONLY | O_TRUNC | O_CREAT, 0664);
         } else {
             index = find_sym(argv, argc, ">>");                                      
@@ -74,48 +75,55 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
         close(f_help);
         argv[i_i] = NULL;
     }
+    
     argv[index] = NULL;
 }
 
 void pipeline(char **argv, int argc, int pipes) {
-    int cmd_n = pipes + 1, status, index1 = 0, index2 = 0;
+    int cmd_n = pipes + 1, status, index1 = 0, index2 = 0, is_redirection_out = 0, is_redirection_in = 0;
     int fd_help, fd[2];
+    char **sub_arr;
     if(pipe(fd) == -1) exit(1);
 
-    for(int i = 0; i <= cmd_n; i++) {                                   //первая команда конвейера
-        if(i == 0) {     
+    for(int i = 1; i <= cmd_n; i++) {                                   //первая команда конвейера
+        if(i == 1) {     
             index2 = find_sym(argv, argc, "|");
-            //доп массив
-            index1 = index2;                                         
+            strcpy(argv[index2], "0");
+            sub_arr = sub_create(argv, 0, index2); 
+            /*if(find_sym(sub_arr, index2 - index1, "<") != -1) is_redirection_out = 1;     
+            if(find_sym(sub_arr, index2 - index1, ">") != -1) is_redirection_in = 1;
+            if(find_sym(sub_arr, index2 - index1, ">>") != -1) is_redirection_in = 2; */                                 
             if(fork() == 0) {
                 dup2(fd[1], 1);
                 close(fd[0]);
                 close(fd[1]);
-                //exec
+                execvp(sub_arr[0], sub_arr);
             } 
+            index1 = index2;
             fd_help = fd[0];
             close(fd[1]);
         } else if(i == cmd_n) {                                            //последняя команда конвейера
-            index2 = argc - 1;
-            //
+            index2 = argc;
+            sub_arr = sub_create(argv, index1, argc);
             if(fork() == 0) {
                 dup2(fd_help, 0);
                 close(fd_help);
-                //exec
+                execvp(sub_arr[0], sub_arr);
             } 
             close(fd_help);
         } else {
             index2 = find_sym(argv, argc, "|");
-            //
-            index1 = index2;
+            strcpy(argv[index2], "0");
+            sub_arr = sub_create(argv, index1, index2);
             if(fork() == 0) {
                 dup2(fd_help, 0);
                 dup2(fd[1], 1);
                 close(fd[1]);
                 close(fd_help);
                 close(fd[0]);
-                //exec
+                execvp(sub_arr[0], sub_arr);
             }
+            index1 = index2;
             close(fd_help);
             close(fd[1]);
             fd_help = 0;
@@ -123,6 +131,7 @@ void pipeline(char **argv, int argc, int pipes) {
     }
 
     while(wait(&status) != -1);
+    free(sub_arr);
 }
 
 int command_exec(char **argv, int argc, short is_redirection_in, short is_redirection_out, short is_pipe) {                                   //выполнение команд
@@ -133,8 +142,6 @@ int command_exec(char **argv, int argc, short is_redirection_in, short is_redire
         return 1;
     }
 
-    printf("%d\n" , is_pipe);
-
     if(strcmp(argv[0], "cd") == 0) {
         return cd(argv, argc);
     } else {
@@ -143,9 +150,12 @@ int command_exec(char **argv, int argc, short is_redirection_in, short is_redire
             perror("error");
             return 1;
         } else  if (pid == 0) {  
-            if(is_pipe != 0) pipeline(argv, argc, is_pipe);
-            if(is_redirection_in != 0 || is_redirection_out != 0) redirection(argv, argc, is_redirection_in, is_redirection_out);                                  
-            if(execvp(argv[0], argv) == -1) perror("error");
+            if(is_pipe != 0) {
+                pipeline(argv, argc, is_pipe);
+            } else {
+                if(is_redirection_in != 0 || is_redirection_out != 0) redirection(argv, argc, is_redirection_in, is_redirection_out);                                  
+                if(execvp(argv[0], argv) == -1) perror("error");
+            }
             exit(0);
         } else {
             wait(&status);

@@ -174,11 +174,10 @@ int find_sym(char ** arr, int n, char *c) {
 }
 
 char **sub_create(char **arr, int i1, int i2) {
-    char **sub = malloc((i2 - i1) * sizeof(char*));
-    for(int i = i1 + 1, j; i < i2; i++, j++) {
-        sub[j] = malloc(strlen(arr[i]));
+    char **sub = malloc((i2 - i1 - 1) * sizeof(char*));
+    for(int i = i1 + 1, j = 0; i < i2; i++, j++) {
+        sub[j] = malloc(strlen(arr[i]) + 1);
         strcpy(sub[j], arr[i]);
     }
-    sub[i2] = NULL;
     return sub;
 }
