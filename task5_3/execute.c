@@ -80,49 +80,55 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
 }
 
 void pipeline(char **argv, int argc, int pipes) {
-    int cmd_n = pipes + 1, status, index1 = 0, index2 = 0, is_redirection_out = 0, is_redirection_in = 0;
+    int cmd_n = pipes + 1, status, index1 = -1, index2 = 0, out = 0, in = 0;
     int fd_help, fd[2];
     char **sub_arr;
-    if(pipe(fd) == -1) exit(1);
 
-    for(int i = 1; i <= cmd_n; i++) {                                   //первая команда конвейера
-        if(i == 1) {     
+    for(int i = 1; i <= cmd_n; i++) {                                  
+        if(pipe(fd) == -1) exit(1);
+        in = 0; out = 0;
+        if(i != cmd_n) {
             index2 = find_sym(argv, argc, "|");
             strcpy(argv[index2], "0");
-            sub_arr = sub_create(argv, 0, index2); 
-            /*if(find_sym(sub_arr, index2 - index1, "<") != -1) is_redirection_out = 1;     
-            if(find_sym(sub_arr, index2 - index1, ">") != -1) is_redirection_in = 1;
-            if(find_sym(sub_arr, index2 - index1, ">>") != -1) is_redirection_in = 2; */                                 
+        } else index2 = argc;
+        sub_arr = sub_create(argv, index1, index2);
+
+        if(find_sym(sub_arr, index2 - index1 - 1, "<") != -1) out = 1;     
+        if(find_sym(sub_arr, index2 - index1 - 1, ">") != -1) in = 1;
+        if(find_sym(sub_arr, index2 - index1 - 1, ">>") != -1) in = 2;
+
+        if(i == 1) {                                    
             if(fork() == 0) {
                 dup2(fd[1], 1);
                 close(fd[0]);
                 close(fd[1]);
+                if(in != 0 || out != 0) redirection(sub_arr, index2 - index1 - 1, in, out);
                 execvp(sub_arr[0], sub_arr);
-            } 
+            }
             index1 = index2;
             fd_help = fd[0];
             close(fd[1]);
         } else if(i == cmd_n) {                                            //последняя команда конвейера
-            index2 = argc;
-            sub_arr = sub_create(argv, index1, argc);
             if(fork() == 0) {
                 dup2(fd_help, 0);
                 close(fd_help);
+                if(in != 0 || out != 0) redirection(sub_arr, index2 - index1 - 1, in, out);
                 execvp(sub_arr[0], sub_arr);
             } 
             close(fd_help);
         } else {
-            index2 = find_sym(argv, argc, "|");
-            strcpy(argv[index2], "0");
-            sub_arr = sub_create(argv, index1, index2);
             if(fork() == 0) {
                 dup2(fd_help, 0);
                 dup2(fd[1], 1);
                 close(fd[1]);
                 close(fd_help);
                 close(fd[0]);
+                if(in != 0 || out != 0) {
+                    printf("Cannot be executed");
+                    exit(1);
+                }
                 execvp(sub_arr[0], sub_arr);
-            }
+            } 
             index1 = index2;
             close(fd_help);
             close(fd[1]);
