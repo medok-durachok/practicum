@@ -156,7 +156,6 @@ void parse_exec(char **words_arr, char *s, int *count) {                        
     cur_arr[cur_count] = NULL;
 
     pipeline(cur_arr, cur_count, pipe_flag);
-    //command_exec(cur_arr, cur_count, redir_in, redir_out, pipe_flag);
     *count = c_count;
 }
 
