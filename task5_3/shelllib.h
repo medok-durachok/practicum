@@ -27,7 +27,7 @@ int cd(char **argv, int argc);
 
 void redirection(char **argv, int argc, short redir_in, short redir_out);
 
-void cmd_exec(char **sub_arr, int argc, int redir_err, pid_t pgid, short is_back);
+void cmd_exec(char **sub_arr, int argc, pid_t pgid, short is_back);
 
 int pipeline(char **argv, int argc, int pipes);
 
