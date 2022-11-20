@@ -87,9 +87,6 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
 void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
     short in = 0, out = 0;
 
-    if(is_back) signal(SIGINT, SIG_IGN);
-    else signal(SIGINT, SIG_DFL);
-
     if(find_sym(argv, argc, "<") != -1) out = 1;     
     if(find_sym(argv, argc, ">") != -1) in = 1;
     if(find_sym(argv, argc, ">>") != -1) in = 2;
@@ -99,6 +96,7 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
         setpgid(0, pgid);                       
         int f = open("/dev/null", O_RDONLY);   
         dup2(f, 0);
+        close(f);
         if(strcmp(argv[argc - 1], "&") == 0) argv[argc - 1] = NULL;
     }
     if(execvp(argv[0], argv) == -1) perror("error");
@@ -125,6 +123,9 @@ int pipeline(char **argv, int argc, int pipes) {
         return 0;
     }
 
+    if(is_back) signal(SIGINT, SIG_IGN);
+    else signal(SIGINT, SIG_DFL);
+
     if(is_back) {
         if (getpgrp() != getpid()) {                                                        //создаем фоновую группу 
             setpgid(0, 0); 
@@ -140,7 +141,7 @@ int pipeline(char **argv, int argc, int pipes) {
         } else if(is_back) {
             z_arr[cnt] = pid;
             cnt++;
-        }
+        } else wait(&status);
     } else {
         for(int i = 1; i <= cmd_n; i++) {                                  
             if(pipe(fd) == -1) return 1;
@@ -159,7 +160,7 @@ int pipeline(char **argv, int argc, int pipes) {
                 } else if(is_back) {
                     z_arr[cnt] = pid;
                     cnt++;
-                }
+                } else wait(&status);
                 index1 = index2;
                 fd_help = fd[0];
                 close(fd[1]);
@@ -172,7 +173,7 @@ int pipeline(char **argv, int argc, int pipes) {
                 else if(is_back) {
                     z_arr[cnt] = pid;
                     cnt++;
-                }
+                } else wait(&status);
                 close(fd_help);
             } else {
                 if((pid = fork()) == 0) {
@@ -186,7 +187,7 @@ int pipeline(char **argv, int argc, int pipes) {
                 else if(is_back) {
                     z_arr[cnt] = pid;
                     cnt++;
-                }
+                } else wait(&status);
                 index1 = index2;
                 close(fd_help);
                 close(fd[1]);
@@ -195,14 +196,16 @@ int pipeline(char **argv, int argc, int pipes) {
         }
     }
 
+    
     for(int i = 0; i < cnt; i++) {
         waitpid(z_arr[i], &status, 0);
         printf("Done: [%d]\n", z_arr[i]);
-        printf("> ");
     }
     free(z_arr);
 
-    while(wait(NULL) != -1);
+    if(!is_back) {
+        waitpid(pid, &status, 0);
+    }
     if(pipes != 0) free(sub_arr);
     if(is_forked) exit(status);
     return 0;
