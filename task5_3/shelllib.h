@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define ADD_M 20
 
@@ -16,7 +17,7 @@ char *file_enter(FILE *f);
 
 void mem_all(char *word, int l_c, char **w_a, int *w_c);
 
-char **parse(char **w_arr, char *s, int *counter, int *current_args, short *rd_i, short *rd_o, short *pp);
+char **parse(char **w_arr, char *s, int *counter, int *current_args, short *pp);
 
 void output(char **arr, int size);
 
@@ -26,7 +27,9 @@ int cd(char **argv, int argc);
 
 void redirection(char **argv, int argc, short redir_in, short redir_out);
 
-void pipeline(char **argv, int argc, int pipes);
+void cmd_exec(char **sub_arr, int argc, int redir_err, pid_t pgid, short is_back);
+
+int pipeline(char **argv, int argc, int pipes);
 
 int command_exec(char **argv, int argc, short is_redirection_in, short is_redirection_out, short is_pipe);
 
