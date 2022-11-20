@@ -21,7 +21,7 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
     int index, f;
 
     if(redir_out == 1 && redir_in == 0) {
-        index = find_sym(argv, argc, "<");                                      //здесь можно поймать ошибку при >/</>> в конце
+        index = find_sym(argv, argc, "<");                                      
         if(index == 0 || index == argc - 1) {
             printf("Wrong syntax.\n");
             exit(0);
@@ -99,7 +99,7 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
         setpgid(0, pgid);                       
         int f = open("/dev/null", O_RDONLY);   
         dup2(f, 0);
-        argv[argc - 1] = NULL;
+        if(strcmp(argv[argc - 1], "&") == 0) argv[argc - 1] = NULL;
     }
     if(execvp(argv[0], argv) == -1) perror("error");
 }
@@ -198,6 +198,7 @@ int pipeline(char **argv, int argc, int pipes) {
     for(int i = 0; i < cnt; i++) {
         waitpid(z_arr[i], &status, 0);
         printf("Done: [%d]\n", z_arr[i]);
+        printf("> ");
     }
     free(z_arr);
 
