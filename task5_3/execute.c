@@ -199,7 +199,8 @@ int pipeline(char **argv, int argc, int pipes) {
     
     for(int i = 0; i < cnt; i++) {
         waitpid(z_arr[i], &status, 0);
-        printf("Done: [%d]\n", z_arr[i]);
+        printf("Done: [%d]\n> ", z_arr[i]);
+        if(i > 0) printf("\n> ");
     }
     free(z_arr);
 
