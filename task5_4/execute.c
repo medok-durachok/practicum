@@ -87,7 +87,6 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
 void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
     short in = 0, out = 0, gap = 0; int status = 0;
     char **sub;
-    printf("*");
     if(find_sym(argv, argc, "<") != -1) out = 1;     
     if(find_sym(argv, argc, ">") != -1) in = 1;
     if(find_sym(argv, argc, ">>") != -1) in = 2;
@@ -102,7 +101,7 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
         if(strcmp(argv[argc - 1], "&") == 0) argv[argc - 1] = NULL;
     }
 
-    if(gap = 1) {
+    /*if(gap = 1) {
         //printf("*");
         gap = count_sym(argv, argc, "(");
         gap *= 2;
@@ -134,11 +133,12 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
                     j++;
                 }
             }
-            sub = sub_create(argv, i, j);
-            status_analysis(sub, j - i);
+            sub = sub_create(argv, gap_index[i], gap_index[j]);
+            printf("*");
+            status_analysis(sub, gap_index[j] - gap_index[i] - 1);
             exit(0);
         }
-    }
+    }*/
 
     if(execvp(argv[0], argv) == -1) {
         perror("error");
@@ -148,7 +148,6 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
 }
 
 int pipeline(char **argv, int argc) {
-    printf("'");
     int pipes = count_sym(argv, argc, "|");
 
     int cmd_n = pipes + 1, index1 = -1, index2 = 0, cnt = 0, status = 0;
