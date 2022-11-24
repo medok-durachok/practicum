@@ -169,6 +169,11 @@ void parse_exec(char **words_arr, char *s, int *count) {                        
     }
     cur_arr[cur_count] = NULL;
 
+    if(strcmp(cur_arr[cur_count - 1], ";") == 0) {
+        cur_arr[cur_count - 1] = NULL;
+        cur_count--;
+        div_flag--;
+    }
     if(div_flag != 0) {
         for(int i = 0; i <= div_flag; i++) {
             if(i == div_flag) index2 = cur_count;
@@ -182,6 +187,7 @@ void parse_exec(char **words_arr, char *s, int *count) {                        
         status_analysis(cur_arr, cur_count);
     }
     *count = c_count;
+    free(curr_sub);
 }
 
 int find_sym(char ** arr, int n, char *c) {
