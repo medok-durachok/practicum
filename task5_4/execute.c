@@ -85,7 +85,7 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
 }
 
 void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
-    short in = 0, out = 0;
+    short in = 0, out = 0; int status = 0;
 
     if(find_sym(argv, argc, "<") != -1) out = 1;     
     if(find_sym(argv, argc, ">") != -1) in = 1;
@@ -99,12 +99,16 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
         close(f);
         if(strcmp(argv[argc - 1], "&") == 0) argv[argc - 1] = NULL;
     }
-    if(execvp(argv[0], argv) == -1) perror("error");
+    if(execvp(argv[0], argv) == -1) {
+        perror("error");
+        exit(1);
+    }
+    exit(0);
 }
 
 int pipeline(char **argv, int argc, int pipes) {
-    int cmd_n = pipes + 1, status, index1 = -1, index2 = 0, cnt = 0;
-    int fd_help, fd[2]; short is_forked = 0, is_back = 0, is_div = 0;
+    int cmd_n = pipes + 1, index1 = -1, index2 = 0, cnt = 0, status = 0;
+    int fd_help, fd[2]; short is_forked = 0, is_back = 0;
     pid_t pid, pgid;
 
     pid_t *z_arr = malloc(cmd_n * sizeof(pid_t));
@@ -133,9 +137,7 @@ int pipeline(char **argv, int argc, int pipes) {
         } else if ((pid = fork()) == 0) pipeline(argv, argc, pipes);
         else return 0;
     }
-    pgid = getpgrp();
-
-    if(find_sym(argv, argc, ";") != -1) is_div = 1;                                         //разделение команд
+    pgid = getpgrp();                                 
 
     if(pipes == 0) {
         if((pid = fork()) == 0) {                       //если одна команда
@@ -203,7 +205,6 @@ int pipeline(char **argv, int argc, int pipes) {
         for(int i = 0; i < cnt; i++) {
             waitpid(z_arr[i], &status, 0);
             printf("Done: [%d]\n> ", z_arr[i]);
-            //if(i > 0) printf("\n> ");
         }
     }
     free(z_arr);
@@ -213,5 +214,74 @@ int pipeline(char **argv, int argc, int pipes) {
     }
     if(pipes != 0) free(sub_arr);
     if(is_forked) exit(status);
-    return 0;
+    return status;
+}
+
+int status_analysis(char **argv, int argc, int is_pipe) {
+    int index1 = -1, index2 = 0, status = 0;
+
+    char **sub;
+
+    int count = 0;
+    for(int i = 0; i < argc; i++) {
+        if(strcmp(argv[i], "&&") == 0 || strcmp(argv[i], "||") == 0) {
+            count++;
+        }
+    }
+
+    if(count == 0) {
+        return pipeline(argv, argc, is_pipe);
+    }
+
+    int or_and_arr[count];
+    count = 0;
+    for(int i = 0; i < argc; i++) {
+        if(strcmp(argv[i], "&&") == 0) {                                    //AND == 0
+            or_and_arr[count] = 0;
+            count++;
+
+        } 
+        if(strcmp(argv[i], "||") == 0) {                                   //OR == 1
+            or_and_arr[count] = 1;
+            count++;
+        }
+    }
+
+    if(or_and_arr[0] == 0) {
+        index2 = find_sym(argv, argc, "&&");
+        strcpy(argv[index2], "0");
+        sub = sub_create(argv, index1, index2);
+        status = pipeline(sub, index2 - index1 - 1, is_pipe);
+    } else {
+        index2 = find_sym(argv, argc, "||");
+        strcpy(argv[index2], "0");
+        sub = sub_create(argv, index1, index2);
+        status = pipeline(sub, index2 - index1 - 1, is_pipe);
+    }
+    index1 = index2;
+    for(int i = 1; i <= count; i++) {
+        if(i == count) index2 = argc;
+        if(or_and_arr[i - 1] == 0)  {                                             //AND segment
+            if(status == 0) {
+                if(index2 != argc) {
+                    index2 = find_sym(argv, argc, "&&");
+                    strcpy(argv[index2], "0");
+                }
+                sub = sub_create(argv, index1, index2);          
+                status = pipeline(sub, index2 - index1 - 1, is_pipe);
+            }
+        } else {
+            if(status != 0) {
+                if(index2 != argc) {
+                    index2 = find_sym(argv, argc, "||");
+                    strcpy(argv[index2], "0");
+                }
+                sub = sub_create(argv, index1, index2);
+                status = pipeline(sub, index2 - index1 - 1, is_pipe);
+            }
+        }
+        index1 = index2;
+    }
+    free(sub);
+    return status;
 }

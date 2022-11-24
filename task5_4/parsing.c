@@ -163,11 +163,11 @@ void parse_exec(char **words_arr, char *s, int *count) {                        
             if(i == div_flag) index2 = cur_count;
             else index2 = find_sym(cur_arr, cur_count, ";");
             curr_sub = sub_create(cur_arr, index1, index2);
-            pipeline(curr_sub, index2 - index1 - 1, pipe_flag);
+            status_analysis(curr_sub, index2 - index1 - 1, pipe_flag);
             index1 = index2;
         }
     } else {
-        pipeline(cur_arr, cur_count, pipe_flag);
+        status_analysis(cur_arr, cur_count, pipe_flag);
     }
     *count = c_count;
 }

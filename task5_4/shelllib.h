@@ -31,6 +31,8 @@ void cmd_exec(char **sub_arr, int argc, pid_t pgid, short is_back);
 
 int pipeline(char **argv, int argc, int pipes);
 
+int status_analysis(char **argv, int argc, int is_pipe);
+
 int command_exec(char **argv, int argc, short is_redirection_in, short is_redirection_out, short is_pipe);
 
 int find_sym(char ** arr, int n, char *c);
