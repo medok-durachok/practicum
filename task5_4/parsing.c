@@ -51,7 +51,7 @@ void mem_all(char *word, int l_c, char **w_a, int *w_c) {       //выделен
 }
 
 char **parse(char **w_arr, char *s, int *counter, int *current_args, short *pp, short *dd) {                 //разбивка строк на слова
-    short is_closing_quote_mark = 0, is_first_space = 0, is_prev_special = 0, is_pipe = 0, is_div = 0;         
+    short is_closing_quote_mark = 0, is_first_space = 0, is_prev_special = 0, is_pipe = 0, is_div = 0, gaps_check = 0;         
     int let_counter = 0, word_counter = *counter, word_mem = ((*counter) / 10 + 1) * ADD_M, let_mem = ADD_M;
     char *word = malloc(ADD_M);
 
@@ -60,6 +60,13 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args, short *pp, 
             if(s[i] == '&' || s[i] == '|' || s[i] == ';' || s[i] == '>' || s[i] == '<' || s[i] == '(' || s[i] == ')') {
                 if(s[i] == '|') is_pipe++;  
                 if(s[i] == ';') is_div++;                        //сделаем счетчик команд конвейера
+
+                if(s[i] == '(') gaps_check++;
+                if(s[i] == ')') gaps_check--; 
+                if(gaps_check < 0) {
+                    printf("Wrong gaps sequence");
+                    exit(0);
+                }
 
                 if(i != 0 && is_first_space != 1 && is_prev_special != 1) {                   //если спецсимвол первый в строке или стоит после пос-ти пробелов
                     if(word_counter == word_mem) {              //то нет предшествующего незаписанного слова
@@ -123,6 +130,10 @@ char **parse(char **w_arr, char *s, int *counter, int *current_args, short *pp, 
         }
     }
 
+    if(gaps_check != 0) {
+        exit(0);
+    }
+
     if(is_first_space == 0 && is_prev_special == 0) {                                 //запись последнего слова, если не пробел и не спецсимвол
         if(word_counter == word_mem) {
             word_mem += ADD_M;
@@ -162,12 +173,13 @@ void parse_exec(char **words_arr, char *s, int *count) {                        
         for(int i = 0; i <= div_flag; i++) {
             if(i == div_flag) index2 = cur_count;
             else index2 = find_sym(cur_arr, cur_count, ";");
+            if(i != div_flag) strcpy(cur_arr[index2], "0");
             curr_sub = sub_create(cur_arr, index1, index2);
-            status_analysis(curr_sub, index2 - index1 - 1, pipe_flag);
+            status_analysis(curr_sub, index2 - index1 - 1);
             index1 = index2;
         }
     } else {
-        status_analysis(cur_arr, cur_count, pipe_flag);
+        status_analysis(cur_arr, cur_count);
     }
     *count = c_count;
 }
@@ -179,6 +191,16 @@ int find_sym(char ** arr, int n, char *c) {
         }
     }
     return -1;
+}
+
+int count_sym(char **arr, int n, char *c) {
+    int cnt = 0;
+    for(int i = 0; i < n; i++) {
+        if(strcmp(arr[i], c) == 0) {
+            cnt++;
+        }
+    }
+    return cnt;
 }
 
 char **sub_create(char **arr, int i1, int i2) {

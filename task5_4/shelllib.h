@@ -29,13 +29,15 @@ void redirection(char **argv, int argc, short redir_in, short redir_out);
 
 void cmd_exec(char **sub_arr, int argc, pid_t pgid, short is_back);
 
-int pipeline(char **argv, int argc, int pipes);
+int pipeline(char **argv, int argc);
 
-int status_analysis(char **argv, int argc, int is_pipe);
+int status_analysis(char **argv, int argc);
 
 int command_exec(char **argv, int argc, short is_redirection_in, short is_redirection_out, short is_pipe);
 
 int find_sym(char ** arr, int n, char *c);
+
+int count_sym(char **arr, int n, char *c);
 
 char **sub_create(char **arr, int i1, int i2);
 

@@ -85,11 +85,13 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
 }
 
 void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
-    short in = 0, out = 0; int status = 0;
-
+    short in = 0, out = 0, gap = 0; int status = 0;
+    char **sub;
+    printf("*");
     if(find_sym(argv, argc, "<") != -1) out = 1;     
     if(find_sym(argv, argc, ">") != -1) in = 1;
     if(find_sym(argv, argc, ">>") != -1) in = 2;
+    if(find_sym(argv, argc, ")") != -1) gap = 1;
 
     if(in != 0 || out != 0) redirection(argv, argc, in, out);
     if(is_back) {
@@ -99,6 +101,45 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
         close(f);
         if(strcmp(argv[argc - 1], "&") == 0) argv[argc - 1] = NULL;
     }
+
+    if(gap = 1) {
+        //printf("*");
+        gap = count_sym(argv, argc, "(");
+        gap *= 2;
+        int gap_arr[gap];
+        int gap_index[gap];
+
+        gap = 0;
+        for(int i = 0; i < argc; i++) {
+            if(strcmp(argv[i], "(") == 0) {
+                gap_arr[gap] = 1;
+                gap_index[gap] = find_sym(argv, argc, "(");
+                strcpy(argv[gap_index[gap]], "0");
+                gap++;
+            } 
+            if(strcmp(argv[i], ")") == 0) {
+                gap_arr[gap] = -1;
+                gap_index[gap] = find_sym(argv, argc, ")");
+                strcpy(argv[gap_index[gap]], "0");
+                gap++;
+            }
+        }
+
+        for(int i = 0; i < gap; i++) {
+            int k = 0; int j = i;
+            if(gap_arr[i] == 1) {
+                k += gap_arr[i];
+                while(k != 0) {
+                    k += gap_arr[j];
+                    j++;
+                }
+            }
+            sub = sub_create(argv, i, j);
+            status_analysis(sub, j - i);
+            exit(0);
+        }
+    }
+
     if(execvp(argv[0], argv) == -1) {
         perror("error");
         exit(1);
@@ -106,7 +147,10 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
     exit(0);
 }
 
-int pipeline(char **argv, int argc, int pipes) {
+int pipeline(char **argv, int argc) {
+    printf("'");
+    int pipes = count_sym(argv, argc, "|");
+
     int cmd_n = pipes + 1, index1 = -1, index2 = 0, cnt = 0, status = 0;
     int fd_help, fd[2]; short is_forked = 0, is_back = 0;
     pid_t pid, pgid;
@@ -134,7 +178,7 @@ int pipeline(char **argv, int argc, int pipes) {
         if (getpgrp() != getpid()) {                                                        //создаем фоновую группу 
             setpgid(0, 0); 
             is_forked = 1;
-        } else if ((pid = fork()) == 0) pipeline(argv, argc, pipes);
+        } else if ((pid = fork()) == 0) pipeline(argv, argc);
         else return 0;
     }
     pgid = getpgrp();                                 
@@ -145,7 +189,7 @@ int pipeline(char **argv, int argc, int pipes) {
         } else if(is_back) {
             z_arr[cnt] = pid;
             cnt++;
-        } else wait(&status);
+        } else if(pid > 0) wait(&status);
     } else {
         for(int i = 1; i <= cmd_n; i++) {                                  
             if(pipe(fd) == -1) return 1;
@@ -217,20 +261,16 @@ int pipeline(char **argv, int argc, int pipes) {
     return status;
 }
 
-int status_analysis(char **argv, int argc, int is_pipe) {
+int status_analysis(char **argv, int argc) {
     int index1 = -1, index2 = 0, status = 0;
 
     char **sub;
-
     int count = 0;
-    for(int i = 0; i < argc; i++) {
-        if(strcmp(argv[i], "&&") == 0 || strcmp(argv[i], "||") == 0) {
-            count++;
-        }
-    }
+    count += count_sym(argv, argc, "&&");
+    count += count_sym(argv, argc, "||");
 
     if(count == 0) {
-        return pipeline(argv, argc, is_pipe);
+        return pipeline(argv, argc);
     }
 
     int or_and_arr[count];
@@ -247,38 +287,47 @@ int status_analysis(char **argv, int argc, int is_pipe) {
         }
     }
 
+    int is_first_cmd = 1;
     if(or_and_arr[0] == 0) {
         index2 = find_sym(argv, argc, "&&");
         strcpy(argv[index2], "0");
         sub = sub_create(argv, index1, index2);
-        status = pipeline(sub, index2 - index1 - 1, is_pipe);
+        status = pipeline(sub, index2 - index1 - 1);
     } else {
         index2 = find_sym(argv, argc, "||");
         strcpy(argv[index2], "0");
         sub = sub_create(argv, index1, index2);
-        status = pipeline(sub, index2 - index1 - 1, is_pipe);
+        status = pipeline(sub, index2 - index1 - 1);
     }
     index1 = index2;
+    is_first_cmd = 0;
     for(int i = 1; i <= count; i++) {
+        int j = 0;
+        if(is_first_cmd) j = i;
+        else j = i - 1;
         if(i == count) index2 = argc;
-        if(or_and_arr[i - 1] == 0)  {                                             //AND segment
-            if(status == 0) {
-                if(index2 != argc) {
-                    index2 = find_sym(argv, argc, "&&");
-                    strcpy(argv[index2], "0");
-                }
-                sub = sub_create(argv, index1, index2);          
-                status = pipeline(sub, index2 - index1 - 1, is_pipe);
+        if(or_and_arr[j] == 0)  { 
+            if(index2 != argc) {
+                index2 = find_sym(argv, argc, "&&");
+                if(index2 != -1) strcpy(argv[index2], "0");
+                else index2 = find_sym(argv, argc, "||");
             }
+            sub = sub_create(argv, index1, index2);                                            //AND segment
+            if(status == 0) {          
+                status = pipeline(sub, index2 - index1 - 1);
+            }
+            !is_first_cmd;
         } else {
-            if(status != 0) {
-                if(index2 != argc) {
-                    index2 = find_sym(argv, argc, "||");
-                    strcpy(argv[index2], "0");
-                }
-                sub = sub_create(argv, index1, index2);
-                status = pipeline(sub, index2 - index1 - 1, is_pipe);
+            if(index2 != argc) {
+                index2 = find_sym(argv, argc, "||");
+                if(index2 != -1) strcpy(argv[index2], "0");
+                else index2 = find_sym(argv, argc, "&&");
             }
+            sub = sub_create(argv, index1, index2);
+            if(status != 0) {
+                status = pipeline(sub, index2 - index1 - 1);
+            }
+            !is_first_cmd;
         }
         index1 = index2;
     }
