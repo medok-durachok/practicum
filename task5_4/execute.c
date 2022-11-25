@@ -84,13 +84,49 @@ void redirection(char **argv, int argc, short redir_in, short redir_out) {
     argv[index] = NULL;
 }
 
+/*void gaps(char **argv, int argc, int gap) {
+    int gap_arr[gap];
+    int gap_index[gap];
+    char **sub;
+    gap = 0;
+    printf("*");
+    for(int i = 0; i < argc; i++) {
+        if(strcmp(argv[i], "(") == 0) {
+            gap_arr[gap] = 1;
+            gap_index[gap] = find_sym(argv, argc, "(");
+            strcpy(argv[gap_index[gap]], "0");
+            gap++;
+        } 
+        if(strcmp(argv[i], ")") == 0) {
+            gap_arr[gap] = -1;
+            gap_index[gap] = find_sym(argv, argc, ")");
+            strcpy(argv[gap_index[gap]], "0");
+            gap++;
+        }
+    }
+
+    for(int i = 0; i < gap; i++) {
+        int k = 0; int j = i + 1;
+        if(gap_arr[i] == 1) {
+            k += gap_arr[i];
+            while(k != 0) {
+                k += gap_arr[j];
+                j++;
+            }
+        }
+        sub = sub_create(argv, gap_index[i], gap_index[j]);
+        printf("*");
+        status_analysis(sub, gap_index[j] - gap_index[i] - 1);
+        exit(0);
+    }
+}*/
+
 void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
-    short in = 0, out = 0, gap = 0; int status = 0;
+    short in = 0, out = 0, gap = count_sym(argv, argc, ")"); int status = 0;
     char **sub;
     if(find_sym(argv, argc, "<") != -1) out = 1;     
     if(find_sym(argv, argc, ">") != -1) in = 1;
     if(find_sym(argv, argc, ">>") != -1) in = 2;
-    if(find_sym(argv, argc, ")") != -1) gap = 1;
 
     if(in != 0 || out != 0) redirection(argv, argc, in, out);
     if(is_back) {
@@ -101,45 +137,11 @@ void cmd_exec(char **argv, int argc, pid_t pgid, short is_back) {
         if(strcmp(argv[argc - 1], "&") == 0) argv[argc - 1] = NULL;
     }
 
-    /*if(gap = 1) {
-        //printf("*");
-        gap = count_sym(argv, argc, "(");
-        gap *= 2;
-        int gap_arr[gap];
-        int gap_index[gap];
-
-        gap = 0;
-        for(int i = 0; i < argc; i++) {
-            if(strcmp(argv[i], "(") == 0) {
-                gap_arr[gap] = 1;
-                gap_index[gap] = find_sym(argv, argc, "(");
-                strcpy(argv[gap_index[gap]], "0");
-                gap++;
-            } 
-            if(strcmp(argv[i], ")") == 0) {
-                gap_arr[gap] = -1;
-                gap_index[gap] = find_sym(argv, argc, ")");
-                strcpy(argv[gap_index[gap]], "0");
-                gap++;
-            }
-        }
-
-        for(int i = 0; i < gap; i++) {
-            int k = 0; int j = i;
-            if(gap_arr[i] == 1) {
-                k += gap_arr[i];
-                while(k != 0) {
-                    k += gap_arr[j];
-                    j++;
-                }
-            }
-            sub = sub_create(argv, gap_index[i], gap_index[j]);
-            printf("*");
-            status_analysis(sub, gap_index[j] - gap_index[i] - 1);
-            exit(0);
-        }
-    }*/
-
+    if(gap != 0) {
+        //gaps(argv, argc, gap * 2);   
+        exit(0);
+    }                                                  //скобки ??
+        
     if(execvp(argv[0], argv) == -1) {
         perror("error");
         exit(1);
@@ -242,12 +244,11 @@ int pipeline(char **argv, int argc) {
             }  
         }
     }
-
     
     if(is_back) {
         for(int i = 0; i < cnt; i++) {
             waitpid(z_arr[i], &status, 0);
-            printf("Done: [%d]\n> ", z_arr[i]);
+            printf("\nDone: [%d]\n> ", z_arr[i]);
         }
     }
     free(z_arr);
