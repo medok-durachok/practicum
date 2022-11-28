@@ -331,6 +331,7 @@ int status_analysis(char **argv, int argc) {
         }
         index1 = index2;
     }
-    free(sub);
+    
+    if(count != 0) free(sub);
     return status;
 }
