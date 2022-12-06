@@ -5,19 +5,16 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
 
-struct sembuf product[5];;
+struct sembuf product[5];
 int semid;
 
-/*void detailA(void) {
-    while(1) {
-        sleep(2);
-        product[0].sem_op = 1;
-        if(semop(semid, product, 1) == -1) perror("detail production: ");
-        printf("detail A\n");
-    }
+void SigHndlr(int s) {
+    semctl(semid, IPC_RMID, (int) 0);
+    kill(0, SIGTERM);
+    exit(0);
 }
-*/
 
 int main(int argc, char **argv) {;
     key_t key;
@@ -26,6 +23,7 @@ int main(int argc, char **argv) {;
     if(semid == -1) {
         exit(1);
     }
+    signal(SIGINT, SigHndlr);
 
     product[0].sem_num = 0;     //А
     product[0].sem_flg = 0;
@@ -49,17 +47,14 @@ int main(int argc, char **argv) {;
     semop(semid, &product[0], 1);                       //в общем, здесь нам нужно проверить на не 0 деталь С и модуль.
     product[0].sem_op = 0;                              //если не 0, то уменьшаем их семафоры на 1; иначе блокируемся до получения не нуля
     semop(semid, &product[0], 1)*/
-
     while(1) {
-        product[2].sem_op = -1;
-        product[3].sem_op = -1;
+        product[3].sem_op = -1;         //вот здесь ПО ИДЕЕ должно блокнуться по причине 0 + (-1) < 0
+        product[4].sem_op = -1;
 
-        semop(semid, &product[2], 2);
+        semop(semid, &product[3], 2);
         printf("DONE\n");
         semop(semid, &product[4], 1);
     }
-
-    semctl(semid, IPC_RMID, (int) 0);
 
     return 0;
 }
