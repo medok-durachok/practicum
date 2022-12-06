@@ -5,9 +5,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-struct sembuf detail_params;
-
 int main(int argc, char **argv) {
+	struct sembuf detail_params;
 	key_t key;
     key = ftok("/usr/sem", 's');
     int semid = semget(key, 1, 0666 | IPC_CREAT);                               
@@ -20,8 +19,8 @@ int main(int argc, char **argv) {
 
 	while(1) {
 		detail_params.sem_op = 1;
+		sleep(4);		
 		semop(semid, &detail_params, 1);
-		sleep(4);
 		printf("detail C\n");
 	}
 }
