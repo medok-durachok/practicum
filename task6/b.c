@@ -8,7 +8,7 @@
 int main(int argc, char **argv) {
 	struct sembuf detail_params;
 	key_t key;
-    key = ftok("/usr/sem", 's');
+    key = ftok("2.txt", 's');
     int semid = semget(key, 1, 0666 | IPC_CREAT);                               
     if(semid == -1) {
         exit(1);
@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	while(1) {
 		detail_params.sem_op = 1;
 		sleep(3);		
-		semop(semid, &detail_params, 1);
-		printf("detail B\n");
+		if(semop(semid, &detail_params, 1) == -1) exit(1);
+		printf("detail B is produced\n");
 	}
 }
