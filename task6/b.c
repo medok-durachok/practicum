@@ -15,16 +15,13 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-	detail_params.sem_num = 0;
+	detail_params.sem_num = 1;
 	detail_params.sem_flg = 0;
 
-	while (1) {
-		detail_params.sem_op = -1;
+	while(1) {
+		detail_params.sem_op = 1;
 		semop(semid, &detail_params, 1);
-
 		sleep(3);
 		printf("detail B\n");
-		detail_params.sem_op = -1;
-		semop(semid, &detail_params, 1);
 	}
 }

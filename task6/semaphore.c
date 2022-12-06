@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-struct sembuf product;
+struct sembuf product[5];;
 int semid;
 
 /*void detailA(void) {
@@ -22,70 +22,42 @@ int semid;
 int main(int argc, char **argv) {;
     key_t key;
     key = ftok("/usr/sem", 's');
-    pid_t pid;
     semid = semget(key, 1, 0666 | IPC_CREAT);                               //создали массив семафоров
     if(semid == -1) {
         exit(1);
     }
 
-    product.sem_num = 0;
-    product.sem_flg = 0;
-    /*product[1].sem_num = 1;
-    product[1].sem_flg = SEM_UNDO;
-    product[2].sem_num = 2;
-    product[2].sem_flg = SEM_UNDO;
-    product[3].sem_num = 3;
-    product[3].sem_flg = SEM_UNDO;*/
+    product[0].sem_num = 0;     //А
+    product[0].sem_flg = 0;
+    product[1].sem_num = 1;     //В
+    product[1].sem_flg = 0;
+    product[2].sem_num = 2;     //С
+    product[2].sem_flg = 0;     
+    product[3].sem_num = 3;     //модуль
+    product[3].sem_flg = 0;
+    product[4].sem_num = 0;     //продукт
+    product[4].sem_flg = 0;
+    product[4].sem_op = 1;
 
-    semctl(semid, 0, SETVAL, (int) 0);
+    semctl(semid, 0, SETVAL, (int) 0);                          //устанавливаем начальные значения 0 — как колво деталей
+    semctl(semid, 1, SETVAL, (int) 0);
+    semctl(semid, 2, SETVAL, (int) 0);
+    semctl(semid, 3, SETVAL, (int) 0);
+    semctl(semid, 4, SETVAL, (int) 0);
+                                              //по идее здесь начинаем бесконечное производство?? или все же 
+    /*product[0].sem_op = 2;                              //бесконечность у нас только в процессах-производствах
+    semop(semid, &product[0], 1);                       //в общем, здесь нам нужно проверить на не 0 деталь С и модуль.
+    product[0].sem_op = 0;                              //если не 0, то уменьшаем их семафоры на 1; иначе блокируемся до получения не нуля
+    semop(semid, &product[0], 1)*/
+
     while(1) {
-        product.sem_op = 2;
-        semop(semid, &product, 1);
+        product[2].sem_op = -1;
+        product[3].sem_op = -1;
 
-        product.sem_op = 0;
-        semop(semid, &product, 1);
+        semop(semid, &product[2], 2);
+        printf("DONE\n");
+        semop(semid, &product[4], 1);
     }
-                              
-    /*if((pid = fork()) == -1) exit(1);
-    if(pid == 0) {
-        while(1) {
-            sleep(2);
-            printf("detail A\n");
-            product[0].sem_op = 1;             
-            if(semop(semid, product, 1) == -1) perror("detail production: ");
-            exit(1);
-        }
-    } 
-        product[0].sem_op = 0;
-        product[1].sem_op = 0;
-    }  */ 
-
-    /*if((pid = fork()) == -1) exit(1);
-    if(pid == 0) {
-        sleep(3);
-        printf("detail B\n");
-        product[1].sem_op = 1;             
-        if(semop(semid, product + 1, 1) == -1) perror("detail production: ");
-        exit(1);
-    } */     
-
-    /*for(int i = 0; i < 3; i++) {
-        if((pid = fork()) == -1) exit(1);
-        if(pid == 0) {
-            sleep(duration[i]);
-            printf("detail %c\n", i + 'a');
-            product[i].sem_op = 1;             
-            semop(semid, product + i, 1);
-            perror("detail production: ");
-            exit(1);
-        }          
-    }*/
-
-    /*product[0].sem_op = 0;
-    product[1].sem_op = 0;
-    semop(semid, product + 3, 1);
-    printf("modul\n");
-    //semop(semod, product, 2);*/
 
     semctl(semid, IPC_RMID, (int) 0);
 
