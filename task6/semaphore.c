@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <signal.h>
 
 #define partA 0
@@ -25,10 +26,13 @@ void SigHndlr(int s) {
 
 int main(int argc, char **argv) {
     struct sembuf product[4];
-    key_t key; int cnt = 0;
-    key = ftok("2.txt", 's');
+    key_t key; int cnt = 0, fd;
+    fd = creat("file", 0666);
+    if(fd < 0) exit(1);
+    key = ftok("file", 's');
     semid = semget(key, 4, 0666 | IPC_CREAT);                               //создали массив семафоров
     if(semid == -1) {
+        perror("id");
         exit(1);
     }
     signal(SIGINT, SigHndlr);
@@ -39,7 +43,7 @@ int main(int argc, char **argv) {
     product[partB].sem_flg = 0;
     product[partC].sem_num = 2;     //С
     product[partC].sem_flg = 0;     
-    product[modul].sem_num = 3;     //модуль
+    product[modul].sem_num = 0;     //модуль
     product[modul].sem_flg = 0;
 
     semctl(semid, partA, SETVAL, (int) 0);                          //устанавливаем начальные значения 0 — как колво деталей
@@ -48,10 +52,6 @@ int main(int argc, char **argv) {
     semctl(semid, modul, SETVAL, (int) 0);
 
     while(1) {
-        product[partB].sem_op = 0;
-        product[modul].sem_op = 1;
-        semop(semid, &product[modul], 1);
-
         product[partC].sem_op = -1;             
         product[modul].sem_op = -1;
 
