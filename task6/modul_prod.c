@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
     fd = creat("file", 0666);
     if(fd < 0) exit(1);
     key = ftok("file", 's');
-    int semid = semget(key, 3, 0666 | IPC_CREAT);                               
+    int semid = semget(key, 4, 0666 | IPC_CREAT);                               
     if(semid == -1) {
     	perror("id");
         exit(1);
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     detail_params[0].sem_flg = 0;
     detail_params[1].sem_num = 1;     //В
     detail_params[1].sem_flg = 0;
-    detail_params[2].sem_num = 0;
+    detail_params[2].sem_num = 3;
     detail_params[2].sem_flg = 0; 
 
 	while(1) {

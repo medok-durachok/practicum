@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 	fd = creat("file", 0666);
 	if(fd < 0) exit(1);
     key = ftok("file", 's');											
-    int semid = semget(key, 1, 0666 | IPC_CREAT);                            
+    int semid = semget(key, 4, 0666 | IPC_CREAT);                            
     if(semid == -1) {
     	perror("id");
         exit(1);

@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     product[partB].sem_flg = 0;
     product[partC].sem_num = 2;     //С
     product[partC].sem_flg = 0;     
-    product[modul].sem_num = 0;     //модуль
+    product[modul].sem_num = 3;     //модуль
     product[modul].sem_flg = 0;
 
     semctl(semid, partA, SETVAL, (int) 0);                          //устанавливаем начальные значения 0 — как колво деталей
