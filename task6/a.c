@@ -1,10 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>								//семафор детали А
+
+void SigHndlr(int s) {
+	remove("file");
+	printf("Producing of detail is stopped\n");
+	exit(0);
+}
 
 int main(int argc, char **argv) {
 	struct sembuf detail_params;	
@@ -14,8 +21,10 @@ int main(int argc, char **argv) {
     key = ftok("file", 's');											
     int semid = semget(key, 1, 0666 | IPC_CREAT);                            
     if(semid == -1) {
+    	perror("id");
         exit(1);
     }
+    signal(SIGINT, SigHndlr);
 
 	detail_params.sem_num = 0;					//инициализация
 	detail_params.sem_flg = 0;

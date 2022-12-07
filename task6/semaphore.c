@@ -12,11 +12,12 @@
 #define partB 1
 #define partC 2
 #define modul 3
-#define final_product 4
 
 int semid;
 
 void SigHndlr(int s) {
+    printf("Production line is stopped. Producing of details is stopped too\n");
+    remove("file");
     semctl(semid, 0, IPC_RMID, (int) 0);
     semctl(semid, 1, IPC_RMID, (int) 0);
     semctl(semid, 2, IPC_RMID, (int) 0);
@@ -50,6 +51,8 @@ int main(int argc, char **argv) {
     semctl(semid, partB, SETVAL, (int) 0);
     semctl(semid, partC, SETVAL, (int) 0);
     semctl(semid, modul, SETVAL, (int) 0);
+
+    printf("Press Ctrl-C to stop.\nProduction line:\n");
 
     while(1) {
         product[partC].sem_op = -1;             

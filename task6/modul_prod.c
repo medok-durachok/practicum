@@ -1,10 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+void SigHndlr(int s) {
+	remove("file");
+	printf("Producing of modul is stopped\n");
+	exit(0);
+}
 
 int main(int argc, char **argv) {				
 	struct sembuf detail_params[3];
@@ -14,8 +21,10 @@ int main(int argc, char **argv) {
     key = ftok("file", 's');
     int semid = semget(key, 3, 0666 | IPC_CREAT);                               
     if(semid == -1) {
+    	perror("id");
         exit(1);
     }
+    signal(SIGINT, SigHndlr);
 
     detail_params[0].sem_num = 0;     //А
     detail_params[0].sem_flg = 0;
@@ -31,6 +40,6 @@ int main(int argc, char **argv) {
 		if(semop(semid, &detail_params[0], 1) == -1) exit(1);
 		if(semop(semid, &detail_params[1], 1) == -1) exit(1);
 		printf("modul is produced\n");
-		if(semop(semid, &detail_params[2], 1) == -1) perror("mod");
+		if(semop(semid, &detail_params[2], 1) == -1) exit(1);
 	}
 }
