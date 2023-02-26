@@ -4,8 +4,12 @@
 
 using namespace std;
 
+bool DateFormatCheck(string);
+void TableHeader() {
+	cout << "\nNAME" << setw(20) << "SURNAME" << setw(20) << "PHONE NUMBER" << setw(15) << "DATE OF BIRTH" << endl;
+}
+
 class Note {
-protected:
 	string name, surname, phone_num, birthday;
 public:
 	Note() {
@@ -16,26 +20,30 @@ public:
 	}
 
 	void SetName() {
-		cout << "Enter name: " << endl;
+		cout << "Enter name: ";
 		cin >> name;
 	}
 	string GetName() const { return name; }
 
 	void SetSurname() {
-		cout << "Enter surname: " << endl;
+		cout << "Enter surname: ";
 		cin >> surname;
 	}
 	string GetSurname() const { return surname; }
 
 	void SetPhone() {
-		cout << "Enter phone number: " << endl;
+		cout << "Enter phone number: ";
 		cin >> phone_num;
 	}
 	string GetPhone() const { return phone_num; }
 
 	void SetBD() {
-		cout << "Enter date of birth: " << endl;
+		cout << "Enter date of birth (dd/mm/yyyy format): ";
 		cin >> birthday;
+		while(DateFormatCheck(birthday) == false) {
+			cout << "Wrong date format. Try again: ";
+			cin >> birthday;
+		}
 	}
 	string GetBD() const { return birthday; }
 
@@ -80,8 +88,7 @@ public:
 			cout << "Empty list";
 		}
 
-		cout << "NAME" << setw(20) << "SURNAME" << setw(20) << "PHONE NUMBER" << setw(15) << "DATE OF BIRTH" << endl;
-
+		TableHeader();
 		Node *ptr = list;
 		while (ptr != nullptr) {
 			ptr->el.GetAll();
@@ -100,50 +107,91 @@ public:
 	}
 
 	void SearchByName(string s) {
+		if(list == nullptr) {
+	    	cout << "Empty list" << endl;
+	    	return;
+	    }
+
+		short cnt = 0;
 		Node *curr = list;
 		while(curr != nullptr) {
 			if(curr->el.GetName() == s) {
+				if(cnt == 0) TableHeader();
 				Show(curr->el);
+				cnt++;
 			}
 			curr = curr->next;
 		}
+		if(cnt == 0) cout << "No records" << endl;
 		delete curr;
 	}
 
 	void SearchBySurname(string s) {
+		if(list == nullptr) {
+	    	cout << "Empty list" << endl;
+	    	return;
+	    }
+
+		short cnt = 0;
 		Node *curr = list;
 		while(curr != nullptr) {
 			if(curr->el.GetSurname() == s) {
+				if(cnt == 0) TableHeader();
 				Show(curr->el);
+				cnt++;
 			}
 			curr = curr->next;
 		}
+		if(cnt == 0) cout << "No records" << endl;
 		delete curr;
 	}
 
 	void SearchByPhone(string s) {
+		if(list == nullptr) {
+	    	cout << "Empty list" << endl;
+	    	return;
+	    }
+
+		short cnt = 0;
 		Node *curr = list;
 		while(curr != nullptr) {
 			if(curr->el.GetPhone() == s) {
+				if(cnt == 0) TableHeader();
 				Show(curr->el);
+				cnt++;
 			}
 			curr = curr->next;
 		}
-		delete curr;
+		if(cnt == 0) cout << "No records" << endl;
+		delete curr;;
 	}
 
 	void SearchByBD(string s) {
+		if(list == nullptr) {
+	    	cout << "Empty list" << endl;
+	    	return;
+	    }
+
+		short cnt = 0;
 		Node *curr = list;
 		while(curr != nullptr) {
 			if(curr->el.GetBD() == s) {
+				if(cnt == 0) TableHeader();
 				Show(curr->el);
+				cnt++;
 			}
 			curr = curr->next;
 		}
+		if(cnt == 0) cout << "No records" << endl;
 		delete curr;
 	}
 
-	void SortBySurname() {                        // проход по неотсортированной части
+	void SortBySurname() {                       
+	    if(list == nullptr) {
+	    	cout << "Empty list" << endl;
+	    	return;
+	    }
+
 	    Node *curr = list;
 	    Node *sorted = nullptr;
 
@@ -168,7 +216,12 @@ public:
 	    list = sorted;
 	}
 
-	void SortByName() {                        
+	void SortByName() { 
+		if(list == nullptr) {
+	    	cout << "Empty list" << endl;
+	    	return;
+	    }
+
 	    Node *curr = list;
 	    Node *sorted = nullptr;
 
@@ -194,6 +247,11 @@ public:
 	}
 
 	void Delete() {
+		if(list == nullptr) {
+	    	cout << "Empty list" << endl;
+	    	return;
+	    }
+
 		Node *prev = nullptr, *curr = list;
 		char c;
 
@@ -229,6 +287,29 @@ public:
 	~Notebook() { ClearList(); }
 };
 
+bool DateFormatCheck(string s) {
+	if(s.size() != 10) return false;
+	if(s[2] != '/' || s[5] != '/') return false;
+
+	short y, m, d; bool is_leap;
+	try { 
+		y = stoi(s.substr(6, 4)); 
+		m = stoi(s.substr(3, 2));
+		d = stoi(s.substr(0, 2));
+	}
+	catch(...) { return false; }
+
+	if(m > 12 || d > 31) return false;
+
+	is_leap = ((y % 400 == 0) || ((y % 4 == 0) && (y % 100 != 0)));
+	if(is_leap == false && m == 2 && d > 28) return false; 						//невисокосный февраль
+	if(is_leap == true && m == 2 && d > 29) return false;						//високосный февраль
+
+	if(d > 30 && ((m == 4) || (m == 6) || (m == 9) || (m == 11))) return false;
+
+	return true;
+}
+
 void Menu() {
 	cout << "----------Info----------" << endl;
 	cout << "Press necessary key to choose menu item" << endl;
@@ -242,14 +323,15 @@ void Menu() {
 	cout << "8: delete item" << endl;
 	cout << "9: show the entire list" << endl;
 	cout << "0: exit" << endl;
-	cout << "------------------------" << endl;
 }
 
 int main() {
 	Notebook i;
 	Menu();
-	int menu_item; string s, s_menu; bool cont = true;
+	int menu_item; string search, s_menu; bool cont = true;
 	while(cont) {
+
+		cout << "------------------------" << endl;
 		cout << "Menu item: ";
 		cin >> s_menu;
 
@@ -265,23 +347,27 @@ int main() {
 			break;
 		case 2:
 			cout << "Enter name: ";
-			cin >> s;
-			i.SearchByName(s);
+			cin >> search;
+			i.SearchByName(search);
 			break;
 		case 3:
 			cout << "Enter surname: ";
-			cin >> s;
-			i.SearchBySurname(s);
+			cin >> search;
+			i.SearchBySurname(search);
 			break;
 		case 4:
 			cout << "Enter phone number: ";
-			cin >> s;
-			i.SearchByPhone(s);
+			cin >> search;
+			i.SearchByPhone(search);
 			break;
 		case 5:
-			cout << "Enter date of birth (dd.mm.yy format): ";
-			cin >> s;
-			i.SearchByBD(s);
+			cout << "Enter date of birth (dd/mm/yyyy format): ";
+			cin >> search;
+			while(DateFormatCheck(search) == false) {
+				cout << "Wrong date format. Try again: ";
+				cin >> search;
+			}
+			i.SearchByBD(search);
 			break;
 		case 6:
 			i.SortBySurname();
@@ -306,5 +392,3 @@ int main() {
 
 	return 0;	
 }
-
-//1) норм табличку сделать, 2) исключения покидать?, 3) привести код к единому стилю, 5) сеттеры в прайват?
