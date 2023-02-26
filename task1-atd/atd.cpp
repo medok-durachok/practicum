@@ -1,12 +1,12 @@
 #include <iostream>
 #include <iomanip>
+#include <string>
 
 using namespace std;
 
 class Note {
 protected:
 	string name, surname, phone_num, birthday;
-	int id = 1;
 public:
 	Note() {
 		name = this->name;
@@ -14,42 +14,42 @@ public:
 		phone_num = this->phone_num;
 		birthday = this->birthday;
 	}
-	//конструктор с параметром
-	void setName() {
+
+	void SetName() {
 		cout << "Enter name: " << endl;
 		cin >> name;
 	}
-	string getName() const { return name; }
+	string GetName() const { return name; }
 
-	void setSurname() {
+	void SetSurname() {
 		cout << "Enter surname: " << endl;
 		cin >> surname;
 	}
-	string getSurname() const { return surname; }
+	string GetSurname() const { return surname; }
 
-	void setPhone() {
+	void SetPhone() {
 		cout << "Enter phone number: " << endl;
 		cin >> phone_num;
 	}
-	string getPhone() const { return phone_num; }
+	string GetPhone() const { return phone_num; }
 
-	void setBD() {
+	void SetBD() {
 		cout << "Enter date of birth: " << endl;
 		cin >> birthday;
 	}
-	string getBD() const { return birthday; }
+	string GetBD() const { return birthday; }
 
 	void SetAll() {
-		setName();
-		setSurname();
-		setPhone();
-		setBD();
+		SetName();
+		SetSurname();
+		SetPhone();
+		SetBD();
 	}
 	void GetAll() const {
-		cout << getName() << setw(20);
-		cout << getSurname() << setw(20);
-		cout << getPhone() <<setw(15);
-		cout << getBD() << endl;
+		cout << GetName() << setw(20);
+		cout << GetSurname() << setw(20);
+		cout << GetPhone() <<setw(15);
+		cout << GetBD() << endl;
 	}
 };
 
@@ -63,7 +63,7 @@ class Notebook : public Note {
 			this->next = nullptr;
 		}
 	};
-	Node *getLast(Node *list) {
+	Node *GetLast(Node *list) {
 		if (list == nullptr) return nullptr;
 	    while (list->next) {
 	        list = list->next;
@@ -93,46 +93,54 @@ public:
 		item.GetAll();
 	}
 
-	void newItem() {
-		Node *ptr = new Node(), *last = getLast(list);
+	void NewItem() {
+		Node *ptr = new Node(), *last = GetLast(list);
 		if(last == nullptr) list = ptr;
 		else last->next = ptr;
 	}
 
 	void SearchByName(string s) {
-		while(list != nullptr) {
-			if(list->el.getName() == s) {
-				Show(list->el);
+		Node *curr = list;
+		while(curr != nullptr) {
+			if(curr->el.GetName() == s) {
+				Show(curr->el);
 			}
-			list = list->next;
+			curr = curr->next;
 		}
+		delete curr;
 	}
 
 	void SearchBySurname(string s) {
-		while(list != nullptr) {
-			if(list->el.getSurname() == s) {
-				Show(list->el);
+		Node *curr = list;
+		while(curr != nullptr) {
+			if(curr->el.GetSurname() == s) {
+				Show(curr->el);
 			}
-			list = list->next;
+			curr = curr->next;
 		}
+		delete curr;
 	}
 
 	void SearchByPhone(string s) {
-		while(list != nullptr) {
-			if(list->el.getPhone() == s) {
-				Show(list->el);
+		Node *curr = list;
+		while(curr != nullptr) {
+			if(curr->el.GetPhone() == s) {
+				Show(curr->el);
 			}
-			list = list->next;
+			curr = curr->next;
 		}
+		delete curr;
 	}
 
 	void SearchByBD(string s) {
-		while(list != nullptr) {
-			if(list->el.getBD() == s) {
-				Show(list->el);
+		Node *curr = list;
+		while(curr != nullptr) {
+			if(curr->el.GetBD() == s) {
+				Show(curr->el);
 			}
-			list = list->next;
+			curr = curr->next;
 		}
+		delete curr;
 	}
 
 	void SortBySurname() {                        // проход по неотсортированной части
@@ -143,12 +151,12 @@ public:
 	    {
 	        Node *next_el = curr->next;
 
-	        if(sorted == nullptr || (sorted->el.getSurname().compare(curr->el.getSurname()) > 0)) {           //вставка первым или перед первым 
+	        if(sorted == nullptr || (sorted->el.GetSurname().compare(curr->el.GetSurname()) > 0)) {           //вставка первым или перед первым 
 	        	curr->next = sorted;
 	        	sorted = curr;
 	    	} else {
 	        	Node *p = sorted;
-	        	while((p->next != nullptr) && (p->next->el.getSurname().compare(curr->el.getSurname()) < 0)) {      //проход по элементам, меньшим нужного
+	        	while((p->next != nullptr) && (p->next->el.GetSurname().compare(curr->el.GetSurname()) < 0)) {      //проход по элементам, меньшим нужного
 	            	p = p->next;      
 	        	}
 	        	curr->next = p->next;                                                    //вставка между элементами
@@ -168,12 +176,12 @@ public:
 	    {
 	        Node *next_el = curr->next;
 
-	        if(sorted == nullptr || (sorted->el.getName().compare(curr->el.getName()) > 0)) {           
+	        if(sorted == nullptr || (sorted->el.GetName().compare(curr->el.GetName()) > 0)) {           
 	        	curr->next = sorted;
 	        	sorted = curr;
 	    	} else {
 	        	Node *p = sorted;
-	        	while((p->next != nullptr) && (p->next->el.getName().compare(curr->el.getName()) < 0)) {      
+	        	while((p->next != nullptr) && (p->next->el.GetName().compare(curr->el.GetName()) < 0)) {      
 	            	p = p->next;      
 	        	}
 	        	curr->next = p->next;                                                    
@@ -190,7 +198,7 @@ public:
 		char c;
 
 		while (curr != nullptr) {
-			cout << "Record about " << curr->el.getName() << " " << curr->el.getSurname() << ". Delete this? y/n" << endl;
+			cout << "Record about " << curr->el.GetName() << " " << curr->el.GetSurname() << ". Delete this? y/n" << endl;
 			cin >> c;
     		if (c == 'y' || c == 'Y') {
       			if(curr == list) {
@@ -239,14 +247,21 @@ void Menu() {
 
 int main() {
 	Notebook i;
-	//Menu();
-	int menu_item; string s; bool cont = true;
+	Menu();
+	int menu_item; string s, s_menu; bool cont = true;
 	while(cont) {
 		cout << "Menu item: ";
-		cin >> menu_item;
+		cin >> s_menu;
+
+		try { menu_item = stoi(s_menu); }
+		catch(...) { 
+			cout << "Wrong key" << endl;
+			continue; 
+		}
+
 		switch(menu_item) {
 		case 1:
-			i.newItem();
+			i.NewItem();
 			break;
 		case 2:
 			cout << "Enter name: ";
@@ -291,3 +306,5 @@ int main() {
 
 	return 0;	
 }
+
+//1) норм табличку сделать, 2) исключения покидать?, 3) привести код к единому стилю, 5) сеттеры в прайват?
