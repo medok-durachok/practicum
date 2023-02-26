@@ -5,6 +5,7 @@
 using namespace std;
 
 bool DateFormatCheck(string);
+bool Numeric(string);
 void TableHeader() {
 	cout << "\nNAME" << setw(20) << "SURNAME" << setw(20) << "PHONE NUMBER" << setw(15) << "DATE OF BIRTH" << endl;
 }
@@ -34,6 +35,10 @@ public:
 	void SetPhone() {
 		cout << "Enter phone number: ";
 		cin >> phone_num;
+		while(Numeric(phone_num) == false) {
+			cout << "Wrong phone format. Try again: ";
+			cin >> phone_num;
+		}
 	}
 	string GetPhone() const { return phone_num; }
 
@@ -85,7 +90,8 @@ public:
 
 	void Show() {
 		if (list == nullptr) {
-			cout << "Empty list";
+			cout << "Empty list" << endl;
+			return;
 		}
 
 		TableHeader();
@@ -310,6 +316,17 @@ bool DateFormatCheck(string s) {
 	return true;
 }
 
+bool Numeric(string s) {
+	int i = 0;
+	if(s[0] == '+') i = 1;
+    for(; i != s.size(); ++i) {
+        if((s[i] >= '0' && s[i] <= '9') == false) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Menu() {
 	cout << "----------Info----------" << endl;
 	cout << "Press necessary key to choose menu item" << endl;
@@ -358,6 +375,10 @@ int main() {
 		case 4:
 			cout << "Enter phone number: ";
 			cin >> search;
+			while(Numeric(search) == false) {
+				cout << "Wrong phone format. Try again: ";
+				cin >> search;
+			}
 			i.SearchByPhone(search);
 			break;
 		case 5:
