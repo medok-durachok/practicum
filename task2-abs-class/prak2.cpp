@@ -4,12 +4,13 @@ using namespace std;
 
 class Transport {
 	virtual void setType() = 0;
+	static int total;
 public:
 	string sort, type;
 	int pass_capacity;
 	bool is_smth_bad;
 
-	Transport() { }
+	Transport() { total++; }
 
 	Transport(const Transport& obj) {
 		sort = obj.sort;
@@ -63,21 +64,39 @@ public:
 		this->is_smth_bad = obj.getSmth();
 		return *this;
 	}
+
+	static void show() {
+		cout << "All transport: " << total << endl;
+	}
+
+	virtual ~Transport() { total--; }
 };
 
+int Transport::total = 0;
 class Surface : public Transport {
+	static int surf_total;
 public:
-	Surface() : Transport() {  }
+	Surface() : Transport() { surf_total++; }
 	Surface(const Surface& obj) : Transport(obj) { }
 	void setType() { type = "surface"; }
+	static void show() {
+		cout << "All surface transport: " << surf_total << endl;
+	}
+	virtual ~Surface() { surf_total--; }
 };
-
+int Surface::surf_total = 0;
 class Underground : public Transport {
+	static int under_total;
 public:
-	Underground() : Transport() { }
+	Underground() : Transport() {under_total++; }
 	Underground(const Surface& obj) : Transport(obj) { }
 	void setType() { type = "underground"; }
+	static void show() {
+		cout << "All underground transport: " << under_total << endl;
+	}
+	virtual ~Underground() { under_total--; }
 };
+int Underground::under_total = 0;
 
 int main() {
 	Surface f, s;
@@ -91,7 +110,6 @@ int main() {
 /*Реализовать некоторый абстрактный класс, удовлетворяющий следующим обязательным требованиям:
 	- класс неплоский,
 	- класс содержит явно описанные 
-	деструктор,
 	статические члены класса (по существу),
 	константные методы (по существу),
 	перегруженную операцию [] или () (если их использование не противоречит структуре выбранного класса).
