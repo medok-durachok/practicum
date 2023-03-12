@@ -3,12 +3,13 @@
 using namespace std;
 
 class Transport {
-	virtual void setType() = 0;
 	static int total;
+	virtual void setType() = 0;
+	virtual void setTicketCost() = 0;
 public:
 	string sort, type;
-	int pass_capacity;
-	bool is_smth_bad;
+	int pass_capacity, ticket_cost;
+	bool is_rail_vehicle;
 
 	Transport() { total++; }
 
@@ -16,7 +17,7 @@ public:
 		sort = obj.sort;
 		type = obj.type;
 		pass_capacity = obj.pass_capacity;
-		is_smth_bad = obj.is_smth_bad;
+		is_rail_vehicle = obj.is_rail_vehicle;
 	}
 
 	void setSort() {
@@ -29,31 +30,35 @@ public:
 		cin >> pass_capacity;
 	}
 
-	void set() {
-		cout << "Enter: ";
-		cin >> is_smth_bad;
+	void setIsRail() {
+		cout << "Enter yes if this sort of transport is rail: ";
+		cin >> is_rail_vehicle;
 	}
 
 	void setAll() {
 		setSort();
 		setType();
+		setTicketCost();
 		setPassCapacity();
-		set();
+		setIsRail();
 	}
 
 	string getSort() const { return sort; }
 
 	string getType() const { return type; }
 
+	int getTicketCost() const { return ticket_cost; }
+
 	int getPassCapacity() const { return pass_capacity; }
 
-	bool getSmth() const { return is_smth_bad; }
+	bool getIsRail() const { return is_rail_vehicle; }
 
 	friend ostream& operator<< (ostream& s, const Transport& obj) {
 		s << obj.getSort() << endl;
 		s << obj.getType() << endl;
+		s << obj.getTicketCost() << endl;
 		s << obj.getPassCapacity() << endl;
-		s << obj.getSmth() << endl;
+		s << obj.getIsRail() << endl;
 		return s;
 	}
 
@@ -61,7 +66,7 @@ public:
 		this->sort = obj.getSort();
 		this->type = obj.getType();
 		this->pass_capacity = obj.getPassCapacity();
-		this->is_smth_bad = obj.getSmth();
+		this->is_rail_vehicle = obj.getIsRail();
 		return *this;
 	}
 
@@ -79,6 +84,7 @@ public:
 	Surface() : Transport() { surf_total++; }
 	Surface(const Surface& obj) : Transport(obj) { }
 	void setType() { type = "surface"; }
+	void setTicketCost() { ticket_cost = 300; }
 	static void show() {
 		cout << "All surface transport: " << surf_total << endl;
 	}
@@ -88,9 +94,10 @@ int Surface::surf_total = 0;
 class Underground : public Transport {
 	static int under_total;
 public:
-	Underground() : Transport() {under_total++; }
+	Underground() : Transport() { under_total++; }
 	Underground(const Surface& obj) : Transport(obj) { }
 	void setType() { type = "underground"; }
+	void setTicketCost() { ticket_cost = 470; }
 	static void show() {
 		cout << "All underground transport: " << under_total << endl;
 	}
@@ -100,17 +107,13 @@ int Underground::under_total = 0;
 
 int main() {
 	Surface f, s;
+	Underground u;
 	f.setAll();
-	s.setAll();
-	f = s;
+	u.setAll();
 	cout << f;
 	return 0;
 }
 
 /*Реализовать некоторый абстрактный класс, удовлетворяющий следующим обязательным требованиям:
 	- класс неплоский,
-	- класс содержит явно описанные 
-	статические члены класса (по существу),
-	константные методы (по существу),
-	перегруженную операцию [] или () (если их использование не противоречит структуре выбранного класса).
 */
