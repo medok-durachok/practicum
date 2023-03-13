@@ -48,6 +48,8 @@ public:
 			cin >> isRailVehicle;
 			transform(isRailVehicle.begin(), isRailVehicle.end(), isRailVehicle.begin(), ::tolower);
 		}
+		if(isRailVehicle == "yes" || isRailVehicle == "1") isRailVehicle = "true";
+		else isRailVehicle = "false";
 	}
 
 	void setAll() {
@@ -95,8 +97,12 @@ public:
 	void setType() { type = "surface"; }
 	void setTicketCost() { ticketCost = 300; }
 
-	const Surface& operator() (int n) {
-		sf.erase(sf.begin() + n - 1);
+	const Surface& operator() (int i) {
+		if(i > sf.size() || i <= 0) {
+			cout << "No available item to change" << endl;
+			return *this;
+		}
+		sf.erase(sf.begin() + i - 1);
 		return *this;
 	}
 
@@ -107,15 +113,29 @@ public:
 		this->sf.push_back(n);
 	}
 
-	friend ostream& operator<< (ostream& s, const Surface& obj) {
-		for(int i = 0; i != obj.sf.size(); ++i) {
-			s << i + 1 << endl;
-			s << obj.sf[i].getSort() << endl;
-			s << obj.sf[i].getType() << endl;
-			s << obj.sf[i].getTicketCost() << endl;
-			s << obj.sf[i].getPassCapacity() << endl;
-			s << obj.sf[i].getIsRail() << endl;
+	void Change(int i) {
+		if(i > sf.size() || i <= 0) {
+			cout << "No available item to change" << endl;
+			return;
 		}
+		Surface obj;
+		obj.setAll();
+		sf[i - 1] = obj;
+	}
+
+	friend ostream& operator<< (ostream& s, const Surface& obj) {
+		s << "---------------------" << endl;
+		cout << "--SURFACE TRANSPORT--" << endl;
+		for(int i = 0; i != obj.sf.size(); ++i) {
+			s << "---------------------" << endl;
+			s << "#" << i + 1 << endl;
+			s << "Sort: " << obj.sf[i].getSort() << endl;
+			s << "Type: " << obj.sf[i].getType() << endl;
+			s << "TicketCost: " << obj.sf[i].getTicketCost() << endl;
+			s << "Passangers Capacity: " << obj.sf[i].getPassCapacity() << endl;
+			s << "Rail or not: " << obj.sf[i].getIsRail() << endl;
+		}
+		s << "---------------------" << endl;
 		return s;
 	}
 
@@ -137,8 +157,12 @@ public:
 	void setType() { type = "underground"; }
 	void setTicketCost() { ticketCost = 470; }
 
-	const Underground& operator() (int n) {
-		ug.erase(ug.begin() + n - 1);
+	const Underground& operator() (int i) {
+		if(i > ug.size() || i <= 0) {
+			cout << "No available item to delete" << endl;
+			return *this;
+		}
+		ug.erase(ug.begin() + i - 1);
 		return *this;
 	}
 
@@ -147,15 +171,29 @@ public:
 		n.setAll();
 		this->ug.push_back(n);
 	}
+	
+	void Change(int i) {
+		if(i > ug.size() || i <= 0) {
+			cout << "No available item to change" << endl;
+			return;
+		}
+		Underground obj;
+		obj.setAll();
+		ug[i - 1] = obj;
+	}
 
 	friend ostream& operator<< (ostream& s, const Underground& obj) {
+		s << "UNDERGROUND TRANSPORT" << endl;
 		for(int i = 0; i != obj.ug.size(); ++i) {
-			s << obj.ug[i].getSort() << endl;
-			s << obj.ug[i].getType() << endl;
-			s << obj.ug[i].getTicketCost() << endl;
-			s << obj.ug[i].getPassCapacity() << endl;
-			s << obj.ug[i].getIsRail() << endl;
+			s << "---------------------" << endl;
+			s << "#" << i + 1 << endl;
+			s << "Sort: " << obj.ug[i].getSort() << endl;
+			s << "Type: " << obj.ug[i].getType() << endl;
+			s << "TicketCost: " << obj.ug[i].getTicketCost() << endl;
+			s << "Passangers Capacity: " << obj.ug[i].getPassCapacity() << endl;
+			s << "Rail or not: " << obj.ug[i].getIsRail() << endl;
 		}
+		s << "---------------------" << endl;
 		return s;
 	}
 
@@ -186,7 +224,8 @@ void Menu() {
 	cout << "1: add new item" << endl;
 	cout << "2: show number of objects" << endl;
 	cout << "3: delete item" << endl;
-	cout << "4: show the entire list" << endl;
+	cout << "4: change item" << endl;
+	cout << "5: show the entire list" << endl;
 	cout << "0: exit" << endl;
 	cout << "------------------------" << endl;
 }
@@ -195,7 +234,7 @@ int main() {
 	Surface s;
 	Underground u;
 	Menu();
-	int menu_item; string str; bool cont = true; char c;
+	int menu_item, i; string str; bool cont = true; char c;
 	while(cont) {
 		cout << "Menu item: ";
 		cin >> menu_item;
@@ -248,6 +287,32 @@ int main() {
 			}
 			break;
 		case 4:
+			cout << "Change item from surface transport? y/n ";
+			cin >> c;
+    		if (c == 'y' || c == 'Y') {
+				cout << "Enter index of item to change: ";
+				cin >> str;
+				while(Numerical(str) == false) {
+					cout << "Wrong index. Try again: ";
+					cin >> str;
+				}
+				s(stoi(str));
+			}
+			else {
+				cout << "Change item from underground transport? y/n ";
+				cin >> c;
+    			if (c == 'y' || c == 'Y')  {
+					cout << "Enter index of item to change: ";
+					cin >> str;
+					while(Numerical(str) == false) {
+							cout << "Wrong index. Try again: ";
+					cin >> str;
+					}
+					s(stoi(str));
+				}
+			}
+			break;
+		case 5:
 			cout << s;
 			cout << u;
 			break;
@@ -263,6 +328,5 @@ int main() {
 
 /*Реализовать некоторый абстрактный класс, удовлетворяющий следующим обязательным требованиям:
 	не хочется скоропостижнуться от одного лишь взгляда
-	нормально вывод оформить
 	методом пристального взгляда оценить косяки и места, над которыми можно подушнить
 */
