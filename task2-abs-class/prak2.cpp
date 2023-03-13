@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -8,16 +9,17 @@ class Transport {
 	virtual void setTicketCost() = 0;
 public:
 	string sort, type;
-	int pass_capacity, ticket_cost;
-	bool is_rail_vehicle;
+	int passCapacity, ticketCost;
+	bool isRailVehicle;
 
-	Transport() { total++; }
+	Transport() { 
+		total++; }
 
 	Transport(const Transport& obj) {
 		sort = obj.sort;
 		type = obj.type;
-		pass_capacity = obj.pass_capacity;
-		is_rail_vehicle = obj.is_rail_vehicle;
+		passCapacity = obj.passCapacity;
+		isRailVehicle = obj.isRailVehicle;
 	}
 
 	void setSort() {
@@ -27,12 +29,12 @@ public:
 
 	void setPassCapacity() {
 		cout << "Enter passengers capacity: ";
-		cin >> pass_capacity;
+		cin >> passCapacity;
 	}
 
 	void setIsRail() {
 		cout << "Enter yes if this sort of transport is rail: ";
-		cin >> is_rail_vehicle;
+		cin >> isRailVehicle;
 	}
 
 	void setAll() {
@@ -47,26 +49,17 @@ public:
 
 	string getType() const { return type; }
 
-	int getTicketCost() const { return ticket_cost; }
+	int getTicketCost() const { return ticketCost; }
 
-	int getPassCapacity() const { return pass_capacity; }
+	int getPassCapacity() const { return passCapacity; }
 
-	bool getIsRail() const { return is_rail_vehicle; }
-
-	friend ostream& operator<< (ostream& s, const Transport& obj) {
-		s << obj.getSort() << endl;
-		s << obj.getType() << endl;
-		s << obj.getTicketCost() << endl;
-		s << obj.getPassCapacity() << endl;
-		s << obj.getIsRail() << endl;
-		return s;
-	}
+	bool getIsRail() const { return isRailVehicle; }
 
 	Transport& operator= (const Transport& obj) {
 		this->sort = obj.getSort();
 		this->type = obj.getType();
-		this->pass_capacity = obj.getPassCapacity();
-		this->is_rail_vehicle = obj.getIsRail();
+		this->passCapacity = obj.getPassCapacity();
+		this->isRailVehicle = obj.getIsRail();
 		return *this;
 	}
 
@@ -79,41 +72,109 @@ public:
 
 int Transport::total = 0;
 class Surface : public Transport {
-	static int surf_total;
+	static int surfTotal;
+	int routeNum;
+	vector<Surface> sf;
 public:
-	Surface() : Transport() { surf_total++; }
+	Surface() : Transport() { 
+		surfTotal++; 
+	}
 	Surface(const Surface& obj) : Transport(obj) { }
 	void setType() { type = "surface"; }
-	void setTicketCost() { ticket_cost = 300; }
-	static void show() {
-		cout << "All surface transport: " << surf_total << endl;
+	void setTicketCost() { ticketCost = 300; }
+	void setRouteNum() { 
+		cout << "Route number: ";
+		cin >> routeNum;
 	}
-	virtual ~Surface() { surf_total--; }
+
+	int getRouteNum() const { return routeNum; }
+
+	void newItem() {
+		Surface n;
+		n.setAll();
+		n.setRouteNum();
+		this->sf.push_back(n);
+	}
+
+	friend ostream& operator<< (ostream& s, const Surface& obj) {
+		for(int i = 0; i != obj.sf.size(); ++i) {
+			s << obj.sf[i].getSort() << endl;
+			s << obj.sf[i].getType() << endl;
+			s << obj.sf[i].getTicketCost() << endl;
+			s << obj.sf[i].getPassCapacity() << endl;
+			s << obj.sf[i].getIsRail() << endl;
+			s << obj.sf[i].getRouteNum() << endl;
+		}
+		return s;
+	}
+
+	static void show() {
+		cout << "All surface transport: " << surfTotal << endl;
+	}
+	virtual ~Surface() { 
+		this->sf.clear();
+		surfTotal--; 
+	}
 };
-int Surface::surf_total = 0;
+int Surface::surfTotal = 0;
 class Underground : public Transport {
-	static int under_total;
+	static int underTotal;
+	string metrolineName;
+	vector<Underground> ug;
 public:
-	Underground() : Transport() { under_total++; }
+	Underground() : Transport() { underTotal++; }
 	Underground(const Surface& obj) : Transport(obj) { }
 	void setType() { type = "underground"; }
-	void setTicketCost() { ticket_cost = 470; }
-	static void show() {
-		cout << "All underground transport: " << under_total << endl;
+	void setTicketCost() { ticketCost = 470; }
+	void setLineName() {
+		cout << "Name of metro line: ";
+		cin >> metrolineName;
 	}
-	virtual ~Underground() { under_total--; }
+	string getLineName() const {
+
+	}	
+	void newItem() {
+		Underground n;
+		n.setAll();
+		n.setLineName();
+		this->ug.push_back(n);
+	}
+
+	friend ostream& operator<< (ostream& s, const Underground& obj) {
+		for(int i = 0; i != obj.ug.size(); ++i) {
+			s << obj.ug[i].getSort() << endl;
+			s << obj.ug[i].getType() << endl;
+			s << obj.ug[i].getTicketCost() << endl;
+			s << obj.ug[i].getPassCapacity() << endl;
+			s << obj.ug[i].getIsRail() << endl;
+			s << obj.ug[i].getLineName() << endl;
+		}
+		return s;
+	}
+
+	static void show() {
+		cout << "All underground transport: " << underTotal << endl;
+	}
+	virtual ~Underground() { 
+		this->ug.clear();
+		underTotal--; 
+	}
 };
-int Underground::under_total = 0;
+int Underground::underTotal = 0;
 
 int main() {
 	Surface f, s;
 	Underground u;
-	f.setAll();
-	u.setAll();
+	f.newItem();
 	cout << f;
 	return 0;
 }
 
 /*Реализовать некоторый абстрактный класс, удовлетворяющий следующим обязательным требованиям:
-	- класс неплоский,
+	не хочется скоропостижнуться от одного лишь взгляда
+	нужно добавить личных полей в каждый класс
+	перегрузки тоже немного растащить
+	кидаем эксепшены
+	ну хоть чет подобное интерфейсу сделать
+	методом пристального взгляда оценить косяки и места, над которыми можно подушнить
 */
