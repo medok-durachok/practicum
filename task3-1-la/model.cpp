@@ -109,7 +109,6 @@ Lexem Scanner::get_lex() {
             is_final = true;
              return Lexem(LEX_FIN);                //конец файла
         }
-        //cout << c << endl; 
         switch(CUR_ST) {
             case NEW:
                 if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue; 
@@ -127,7 +126,6 @@ Lexem Scanner::get_lex() {
                 else if(c == '<' || c == '>' || c == '=') { 
                     buf.push_back(c);
                     CUR_ST = LGE; 
-                    //cout << "here";
                 }
                 else if(c == '!') {
                     buf.push_back(c);
@@ -179,7 +177,6 @@ Lexem Scanner::get_lex() {
                 if (c == '*') {
                     CUR_ST = END_COM;
                 }
-                //else if (c == '/') throw c;
                 break;
             case END_COM:
                 if (c == '/') {
@@ -188,7 +185,6 @@ Lexem Scanner::get_lex() {
                 break;
             case LGE:
                 if (c == '=') {
-                    //cout << " then here";
                     buf.push_back(c);
                     i = look(buf, TD);
                     return Lexem((type_of_lex)(i + (int)LEX_FIN), i);
@@ -208,9 +204,8 @@ Lexem Scanner::get_lex() {
             case QOUTE:             //обработка простых кавычек вида "..." без вложений
                 string s;
                 if(c == '"') {
-                    //ungetc(c, f); — наверное, нам не нужно кавычки выводить в таблице ??
                     i = set(s);
-                    return Lexem(LEX_STRCONST, i);        //строковая константа — лучше другой какой-то тип ._.
+                    return Lexem(LEX_STRCONST, i);
                 } else {
                     s.push_back(c);
                 }
