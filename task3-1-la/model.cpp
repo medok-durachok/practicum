@@ -55,6 +55,7 @@ int set(const string &buf) {
     for(auto i = TID.begin(); i != TID.end(); ++i) {
         if(*i == buf) return i - TID.begin();
     }
+    cout << buf;
     TID.push_back(Id(buf));
     return TID.size() - 1;
 }
@@ -133,7 +134,6 @@ Lexem Scanner::get_lex() {
                 }
                 else if(c == '"' && is_first_qoute) {
                     is_first_qoute = false;
-                    buf.push_back(c);
                     CUR_ST = QOUTE;
                 }
                 else {                  //обработка спецсимволов
@@ -202,12 +202,12 @@ Lexem Scanner::get_lex() {
                 } else throw '!';
                 break;
             case QOUTE:             //обработка простых кавычек вида "..." без вложений
-                string s;
                 if(c == '"') {
-                    i = set(s);
+                    i = set(buf);
+                    is_first_qoute = true;
                     return Lexem(LEX_STRCONST, i);
                 } else {
-                    s.push_back(c);
+                    buf.push_back(c);
                 }
                 break;
         }
@@ -226,7 +226,7 @@ ostream & operator<< (ostream &s, Lexem l) {
     }
     else if(l.t_lex == LEX_NUM) t = "NUMBER";
     else if(l.t_lex == LEX_ID) t = TID[l.v_lex].get_name();
-    else if(l.t_lex == LEX_STRCONST) t = TID[l.v_lex].get_name();           //это типа строковые константы, да.
+    else if(l.t_lex == LEX_STRCONST) t = TID[l.v_lex].get_name();           
     else throw l;
     s << "From " << table << ": (\'" << t << "\', " << l.v_lex << ");" << endl;
     return s;
