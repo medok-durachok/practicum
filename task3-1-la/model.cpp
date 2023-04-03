@@ -12,7 +12,8 @@ enum type_of_lex {
     LEX_EQ, LEX_PERC, LEX_SEMICOLON, LEX_COMMA, LEX_LCBRACE, LEX_RCBRACE, LEX_LPAREN, LEX_RPAREN, LEX_QOUTE, LEX_ASSIGN, LEX_LSS,   /*27*/
     LEX_GTR, LEX_PLUS, LEX_MINUS, LEX_TIMES, LEX_SLASH, LEX_LEQ, LEX_NEQ, LEX_GEQ,               
     LEX_NUM,                                                                                    
-    LEX_ID
+    LEX_ID,
+    LEX_STRCONST
 };
 
 class Lexem {
@@ -40,7 +41,7 @@ public:
         name = n;
     }
 
-    bool operator== (const string& s) const { 
+    bool operator== (const string& s) const { //используем это при поиске эл-а в векторе
         return name == s; 
     }
     string get_name() const { 
@@ -51,10 +52,9 @@ public:
 vector<Id> TID;
  
 int set(const string &buf) {
-    vector<Id>::iterator k;
- 
-    if ((k = find(TID.begin(), TID.end(), buf)) != TID.end())
-        return k - TID.begin();
+    for(auto i = TID.begin(); i != TID.end(); ++i) {
+        if(*i == buf) return i - TID.begin();
+    }
     TID.push_back(Id(buf));
     return TID.size() - 1;
 }
@@ -205,12 +205,12 @@ Lexem Scanner::get_lex() {
                     return Lexem((type_of_lex)(i + (int)LEX_FIN), i);
                 } else throw '!';
                 break;
-            case QOUTE:             //обработка простых кавычек вида "//" без вложений
+            case QOUTE:             //обработка простых кавычек вида "..." без вложений
                 string s;
                 if(c == '"') {
                     //ungetc(c, f); — наверное, нам не нужно кавычки выводить в таблице ??
                     i = set(s);
-                    return Lexem(LEX_STRING, i);        //строковая константа — лучше другой какой-то тип ._.
+                    return Lexem(LEX_STRCONST, i);        //строковая константа — лучше другой какой-то тип ._.
                 } else {
                     s.push_back(c);
                 }
@@ -231,6 +231,7 @@ ostream & operator<< (ostream &s, Lexem l) {
     }
     else if(l.t_lex == LEX_NUM) t = "NUMBER";
     else if(l.t_lex == LEX_ID) t = TID[l.v_lex].get_name();
+    else if(l.t_lex == LEX_STRCONST) t = TID[l.v_lex].get_name();           //это типа строковые константы, да.
     else throw l;
     s << "From " << table << ": (\'" << t << "\', " << l.v_lex << ");" << endl;
     return s;
