@@ -170,7 +170,6 @@ Lexem Scanner::get_lex() {
                 else {
                     ungetc(c, f);
                     if((i = look(buf, TW))) {
-                        cout << (type_of_lex)i << endl;
                         return Lexem((type_of_lex)i, i);
                     } else {
                         i = set(buf);
@@ -369,7 +368,7 @@ void Parser::D() {
                 }
             }
             catch(const char *l) {      
-                while (c_type != LEX_COMMA) gl();
+                while(c_type != LEX_COMMA) gl();
             }
             V();
         }
@@ -486,7 +485,7 @@ void Parser::S() {
             E();
         }
     }
-    else if(c_type == LEX_INT) D();
+    else if(c_type == LEX_INT || c_type == LEX_BOOLEAN || c_type == LEX_STRING) D();
     else if (c_type == LEX_SEMICOLON) gl();
     //else 
        // throw curr_lex;
@@ -524,7 +523,7 @@ void Parser::T() {
 }
  
 void Parser::F() {
-    cout << "im in F" << endl;
+    //cout << "im in F" << endl;
     if(c_type == LEX_ID) {          
         check_id();                // ид проверяем на объявл
         gl();
@@ -576,8 +575,8 @@ void Parser::check_id() {
     if(TID[c_val].get_declare())
         st_lex.push(TID[c_val].get_type());
     else
-        cout << "im not declared" << endl;
-        //throw "not declared";
+        //cout << "im not declared" << endl;
+        throw "not declared";
 }
  
 void Parser::check_id_in_read() {
