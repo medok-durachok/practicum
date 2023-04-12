@@ -1,14 +1,15 @@
 program {
-	int s;
+	int s, l = 3, ll = 33;
 	s = 2;
 	if(s != 5) {
 		read(s);
 	}
 	int k = 0;
-	if(k < 10) {
+	if(s < 10) {
 		k = k + 1;
 	} else {
 		write(k);
 	}
-	string b, c, d;
+	string b = "hi", c, d;
+	/*comment here*/
 }

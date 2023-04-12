@@ -9,7 +9,7 @@ enum type_of_lex {
     LEX_NULL,       //0                                                                                   
     LEX_AND, LEX_BOOLEAN, LEX_ELSE, LEX_IF, LEX_FALSE, LEX_INT,   //6    
     LEX_NOT, LEX_OR, LEX_PROGRAM, LEX_READ, LEX_TRUE, LEX_STRING, LEX_WRITE, LEX_CONTINUE,
-    LEX_FIN,  //16                                                                                  
+    LEX_FIN,  //15                                                                                 
     LEX_EQ, LEX_PERC, LEX_SEMICOLON, LEX_COMMA, LEX_LCBRACE, LEX_RCBRACE, LEX_LPAREN, LEX_RPAREN, LEX_QOUTE, LEX_ASSIGN, LEX_LSS,   /*27*/
     LEX_GTR, LEX_PLUS, LEX_MINUS, LEX_TIMES, LEX_SLASH, LEX_LEQ, LEX_NEQ, LEX_GEQ,               
     LEX_NUM,                                                                                    
@@ -360,6 +360,7 @@ void Parser::D() {
             if(c_type == LEX_ID) TID[c_val].set_type(tmp);
 
             V();
+            dec(tmp);
             try {
                 if(c_type == LEX_ID) {
                     if (TID[c_val].get_declare()) throw "twice";
@@ -486,6 +487,7 @@ void Parser::S() {
             E();
         }
     }
+    else if(c_type == LEX_CONTINUE) gl();
     else if(c_type == LEX_INT || c_type == LEX_BOOLEAN || c_type == LEX_STRING) D();
     else if (c_type == LEX_SEMICOLON) gl();
     //else 
