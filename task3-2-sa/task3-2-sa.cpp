@@ -388,7 +388,7 @@ void Parser::V() {
             A();        
         }
     } else {
-        if ( c_type == LEX_COMMA || c_type == LEX_SEMICOLON){}
+        if (c_type == LEX_COMMA || c_type == LEX_SEMICOLON) { }
         else throw curr_lex;
     }
 }
@@ -416,9 +416,10 @@ void Parser::A() {
  
 void Parser::B() {
     //cout << "im in B" << endl;
-    while(c_type != LEX_RCBRACE)
-    while(c_type != LEX_RCBRACE && c_type != LEX_FIN) {
-        S();
+    while(c_type != LEX_RCBRACE) {
+        while(c_type != LEX_RCBRACE && c_type != LEX_FIN) {
+            S();
+        }
     }
 }
 

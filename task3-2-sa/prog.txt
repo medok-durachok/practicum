@@ -1,6 +1,14 @@
 program {
-	int s = 3;
+	int s;
+	s = 2;
 	if(s != 5) {
-		write("helllooooooo");
+		read(s);
 	}
+	int k = 0;
+	if(k < 10) {
+		k = k + 1;
+	} else {
+		write(k);
+	}
+	string b, c, d;
 }
