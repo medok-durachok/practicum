@@ -1,6 +1,17 @@
 program {
-	string f = "f";
-	int l = 9, a = 0, b = 1, c = 2;
+	string f = "f"; 
+	/* string f "f" ; */
+	int l = 9, a = 0, b = 1, c;
+	c = 2;
+
+	/* k = 2; */
+
+	/* write("hello world"); */
+
+	/* b = true; */
+
+	/* a = "s" + 7; */
+
 	if(l - 2 >= 6) {
 		continue;
 	} else {
@@ -9,4 +20,5 @@ program {
 	a = b = c;
 	boolean d;
 	c -= 9;
+	read(d);
 }
