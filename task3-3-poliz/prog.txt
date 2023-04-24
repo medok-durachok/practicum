@@ -1,10 +1,12 @@
 program {
 	string f = "f";
 	int l = 9, a = 0, b = 1, c = 2;
-	if(l - 2 == true) {
+	if(l - 2 >= 6) {
 		continue;
 	} else {
 		write(l);
 	}
 	a = b = c;
+	boolean d;
+	c -= 9;
 }
