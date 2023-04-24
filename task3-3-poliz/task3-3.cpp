@@ -120,7 +120,7 @@ const char
  
 Lexem Scanner::get_lex() {
     enum state {NEW, IDENT, NUMB, COM, END_COM, SLASH, LGE, NEQ, QOUTE, MIN};
-    int num, i, st;
+    int num, i;
     
     string buf;
     state CUR_ST = NEW;
@@ -146,22 +146,18 @@ Lexem Scanner::get_lex() {
                 }
                 else if(c == '<' || c == '>' || c == '=') { 
                     buf.push_back(c);
-                    //PREV = CUR_ST;
                     CUR_ST = LGE; 
                 }
                 else if(c == '!') {
                     buf.push_back(c);
-                    //PREV = CUR_ST;
                     CUR_ST = NEQ;
                 }
                 else if(c == '"' && is_first_qoute) {
                     is_first_qoute = false;
-                    //PREV = CUR_ST;
                     CUR_ST = QOUTE;
                 }
                 else if(c == '-') {
                     buf.push_back(c);
-                    //cout << st;
                     CUR_ST = MIN;
                 }
                 else {                  //обработка спецсимволов
@@ -181,11 +177,9 @@ Lexem Scanner::get_lex() {
                         return Lexem((type_of_lex)i, i);
                     } else {
                         i = set(buf);
-                        //cout << LEX_ID << " " << i << endl;
                         return Lexem(LEX_ID, i);
                     }
                 }
-                st = CUR_ST;
                 break;
             case NUMB:                  //обработка числа
                 if(isdigit(c)) {
@@ -194,7 +188,6 @@ Lexem Scanner::get_lex() {
                     ungetc(c, f);
                     return Lexem(LEX_NUM, num);
                 }
-                st = CUR_ST;
                 break;
             case SLASH:         //проверяем, является ли комментарием
             	if(c == '*') {
@@ -203,7 +196,6 @@ Lexem Scanner::get_lex() {
                     i = look(buf, TD);
                     return Lexem((type_of_lex)(i + (int)LEX_FIN + 1), i);
                 }
-                st = CUR_ST;
             	break;
             case MIN:
                 if (c == '=') {
@@ -240,7 +232,6 @@ Lexem Scanner::get_lex() {
                     i = look(buf, TD);
                     return Lexem((type_of_lex)(i + (int)LEX_FIN + 1), i);
                 } else throw c;
-                st = CUR_ST;
                 break;
             case NEQ:
                 if (c == '=') {
@@ -248,7 +239,6 @@ Lexem Scanner::get_lex() {
                     i = look(buf, TD);
                     return Lexem(LEX_NEQ, i);
                 } else throw '!';
-                st = CUR_ST;
                 break;
             case QOUTE:             //обработка простых кавычек вида "..." без вложений
                 if(c == '"') {
@@ -378,7 +368,6 @@ void Parser::D1(){
 void Parser::D() {
     type_of_lex tmp = c_type;
     if (c_type == LEX_INT || c_type == LEX_BOOLEAN || c_type == LEX_STRING) {
-        //cout << 1111111111;
         gl();
         st_lex.push(tmp);
         if(c_type == LEX_ID) TID[c_val].set_type(tmp);
@@ -432,10 +421,8 @@ void Parser::V() {
 }
 
 void Parser::A() {
-    //cout << 33333;
     if(c_type == LEX_STRCONST) {
         st_lex.push(LEX_STRCONST);
-        //eq_type();
         poliz.push_back(curr_lex);
         gl();
     }
@@ -461,7 +448,6 @@ void Parser::A() {
 }
  
 void Parser::B() {
-    //cout << "im in B" << endl;
     while(c_type != LEX_RCBRACE) {
         while(c_type != LEX_RCBRACE && c_type != LEX_FIN) {
             S();
@@ -477,7 +463,7 @@ void Parser::S() {
         gl();
         E();
 
-        eq_bool();         //////////////////////////////////////////////// 
+        eq_bool();          
         pl2 = poliz.size();
         poliz.push_back(Lexem());
         poliz.push_back(Lexem(POLIZ_FGO));
@@ -486,7 +472,7 @@ void Parser::S() {
             gl();
             S();
 
-            pl3 = poliz.size(); ///////////////////////////////////////////////////////////
+            pl3 = poliz.size(); 
             poliz.push_back(Lexem());
 
             poliz.push_back(Lexem(POLIZ_GO));
@@ -512,7 +498,6 @@ void Parser::S() {
                 gl();
             }
             else {
-                //poliz.push_back(Lexem(POLIZ_LABEL, poliz.get_free()), pl2);
                 S();
             }
         }
@@ -525,13 +510,13 @@ void Parser::S() {
             if(c_type == LEX_ID) {
                 check_id_in_read();
 
-                poliz.push_back(Lexem(POLIZ_ADDRESS, c_val));//////////////////////////////////////////
+                poliz.push_back(Lexem(POLIZ_ADDRESS, c_val)); 
 
                 gl();
             } else throw curr_lex;
             if(c_type == LEX_RPAREN) {
                 gl();
-                poliz.push_back(Lexem(LEX_READ));////////////////////////////////
+                poliz.push_back(Lexem(LEX_READ)); 
             }
             else throw curr_lex;
         }
@@ -544,14 +529,14 @@ void Parser::S() {
             E();
             if (c_type == LEX_RPAREN) {
                 gl();
-                poliz.push_back(Lexem(LEX_WRITE));//////////////////////////////
+                poliz.push_back(Lexem(LEX_WRITE)); 
             }
             else throw curr_lex;
         } else throw curr_lex;
     }
     else if(c_type == LEX_ID) {
         check_id();
-        poliz.push_back(Lexem(POLIZ_ADDRESS, c_val));//////////////////////////////////
+        poliz.push_back(Lexem(POLIZ_ADDRESS, c_val)); 
         type_of_lex tmp = TID[c_val].get_type();
         cout << tmp;
         st_lex.push(LEX_ID);
@@ -562,10 +547,10 @@ void Parser::S() {
             gl();
             E();
 
-            eq_type(); /////////////////////////////////////////////////////////
+            eq_type(); 
             poliz.push_back(Lexem(LEX_ASSIGN));
         } else if(c_type == LEX_MINUSEQ) {
-            if(tmp == LEX_BOOLEAN) throw "you can't do uno minus with bool";
+            if(tmp == LEX_BOOLEAN) throw "can't do uno minus with bool";
             if(tmp != LEX_STRING) {
                 gl();
                 E();
@@ -573,7 +558,7 @@ void Parser::S() {
                 eq_type();
                 poliz.push_back(Lexem(LEX_MINUSEQ, LEX_MINUSEQ));
             }
-            //else throw "you can't do uno minus with string";
+            else throw "can't do uno minus with string";
         }
     }
     else if(c_type == LEX_CONTINUE) gl();
@@ -586,7 +571,6 @@ void Parser::S() {
 }
 
 void Parser::E() {
-    //cout << "im in E" << endl;
     E1();                  // самый низкий приоритет операций проверяем тут
     if(c_type == LEX_EQ || c_type == LEX_LSS || c_type == LEX_GTR ||
          c_type == LEX_LEQ || c_type == LEX_GEQ || c_type == LEX_NEQ || c_type == LEX_ASSIGN /*|| c_type == LEX_MINUSEQ*/ ) {
@@ -600,7 +584,6 @@ void Parser::E() {
 }
  
 void Parser::E1() {
-    //cout << "im in E1" << endl;
     T ();           
     while(c_type == LEX_PLUS || c_type == LEX_MINUS || c_type == LEX_OR) {
         st_lex.push(c_type);
@@ -622,32 +605,31 @@ void Parser::T() {
 }
  
 void Parser::F() {
-    //cout << "im in F" << endl;
     if(c_type == LEX_ID) {          
         check_id();                // ид проверяем на объявл
         type_of_lex tmp = TID[c_val].get_type();
         st_lex.push(tmp);
-        poliz.push_back(Lexem(LEX_ID, c_val));/////////////////////////////////////////
+        poliz.push_back(Lexem(LEX_ID, c_val)); 
         gl();
     }
     else if(c_type == LEX_NUM) {
         st_lex.push(LEX_INT);            // число просто вносим
-        poliz.push_back(curr_lex);///////////////////////////////////////////////////
+        poliz.push_back(curr_lex); 
         gl();
     }
     else if(c_type == LEX_STRCONST) {
         st_lex.push(LEX_STRCONST);            // число просто вносим
-        poliz.push_back(curr_lex);//////////////////////////////
+        poliz.push_back(curr_lex); 
         gl();
     }
     else if(c_type == LEX_TRUE) {
         st_lex.push(LEX_BOOLEAN);
-        poliz.push_back(Lexem(LEX_TRUE, 1));/////////////////////////////////
+        poliz.push_back(Lexem(LEX_TRUE, 1)); 
         gl();
     }
     else if(c_type == LEX_FALSE) {
         st_lex.push(LEX_BOOLEAN);
-        poliz.push_back(Lexem(LEX_FALSE, 0));////////////////////////////
+        poliz.push_back(Lexem(LEX_FALSE, 0)); 
         gl();
     }
     else if(c_type == LEX_NOT) {
@@ -691,7 +673,7 @@ void Parser::check_id_in_read() {
     if(!TID [c_val].get_declare()) throw "not declared";
 }
 
-void Parser::check_op() {//////////////////////////////////////////////////////////////////////////
+void Parser::check_op() { 
     type_of_lex t1, t2, op, t = LEX_INT, r = LEX_BOOLEAN;
  
     from_stack(st_lex, t2);
@@ -713,7 +695,6 @@ void Parser::check_not() {
 void Parser::eq_type() {
     type_of_lex t;
     from_stack(st_lex, t);
-    //cout << t << " " << st_lex.top() << endl;
     if (t != st_lex.top()) throw "wrong type in assignment";
     st_lex.pop();
 }
