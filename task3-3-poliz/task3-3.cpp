@@ -77,7 +77,7 @@ int set(const string &buf) {
  
 class Scanner {
     FILE *f;
-    char c; int st;
+    char c;
     bool is_first_qoute = true, is_final = false;
     int look(const string buf, const char **list) {
         int i = 0;
@@ -116,17 +116,16 @@ const char
                       "read", "true", "string", "write", "continue", NULL};
  
 const char
-*Scanner::TD[] = {"==", "%", ";", ",", "{", "}", "(", ")", "\"", "=", "<", ">", "+", "-", "*", "/", "<=", "!=", ">=", NULL};
+*Scanner::TD[] = {"==", "%", ";", ",", "{", "}", "(", ")", "\"", "=", "<", ">", "+", "-", "-=", "*", "/", "<=", "!=", ">=", NULL};
  
 Lexem Scanner::get_lex() {
     enum state {NEW, IDENT, NUMB, COM, END_COM, SLASH, LGE, NEQ, QOUTE, MIN};
-    int num, i;
+    int num, i, st;
     
     string buf;
     state CUR_ST = NEW;
     do {
         gc();
-        //cout << c << endl;
         switch(CUR_ST) {
             case NEW:
                 if(c == EOF) {
@@ -136,7 +135,6 @@ Lexem Scanner::get_lex() {
                 if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue; 
                 else if(isalpha(c)) {
                     buf.push_back(c);
-                    //PREV = CUR_ST;
                     CUR_ST = IDENT;
                 }
                 else if(isdigit(c)) {
@@ -164,7 +162,7 @@ Lexem Scanner::get_lex() {
                     CUR_ST = QOUTE;
                 }
                 else if(c == '-') {
-                    //PREV = CUR_ST;
+                    buf.push_back(c);
                     //cout << st;
                     CUR_ST = MIN;
                 }
@@ -210,25 +208,25 @@ Lexem Scanner::get_lex() {
                 st = CUR_ST;
             	break;
             case MIN:
-                i = look(buf, TD);
-                //cout << st;
-                if(st == 1 || st == 2) {
-                    return Lexem(LEX_MINUS, i);
-                }
-                return Lexem(LEX_MINUSEQ, i);
+                if (c == '=') {
+                    buf.push_back(c);
+                    i = look(buf, TD);
+                    return Lexem(LEX_MINUSEQ, i);
+                } else if(c == ' ') {
+                    ungetc(c, f);
+                    i = look(buf, TD);
+                    return Lexem((type_of_lex)(i + (int)LEX_FIN + 1), i);
+                } else throw c;
                 break;
             case COM:
                 if (c == '*') {
-                    st = CUR_ST;
                     CUR_ST = END_COM;
                 }
                 break;
             case END_COM:
                 if (c == '/') {
-                    st = CUR_ST;
                     CUR_ST = NEW;
                 } else {
-                    st = CUR_ST;
                     CUR_ST = COM;
                 }
                 break;
@@ -236,7 +234,9 @@ Lexem Scanner::get_lex() {
                 if (c == '=') {
                     buf.push_back(c);
                     i = look(buf, TD);
-                    return Lexem((type_of_lex)(i + (int)LEX_FIN + 1), i);
+                    if(buf[0] == '<') return Lexem(LEX_LEQ, i);
+                    if(buf[0] == '>') return Lexem(LEX_GEQ, i);
+                    return Lexem((type_of_lex)(i + (int)LEX_FIN), i);
                 } else if(c == ' ') {
                     ungetc(c, f);
                     i = look(buf, TD);
@@ -248,7 +248,7 @@ Lexem Scanner::get_lex() {
                 if (c == '=') {
                     buf.push_back(c);
                     i = look(buf, TD);
-                    return Lexem((type_of_lex)(i + (int)LEX_FIN), i);
+                    return Lexem(LEX_NEQ, i);
                 } else throw '!';
                 st = CUR_ST;
                 break;
@@ -555,6 +555,7 @@ void Parser::S() {
         check_id();
         poliz.push_back(Lexem(POLIZ_ADDRESS, c_val));//////////////////////////////////
         type_of_lex tmp = TID[c_val].get_type();
+        cout << tmp;
         st_lex.push(LEX_ID);
         st_lex.push(tmp);
 
@@ -569,10 +570,12 @@ void Parser::S() {
             if(tmp == LEX_BOOLEAN) throw "you can't do uno minus with bool";
             if(tmp != LEX_STRING) {
                 gl();
+                E();
+
                 eq_type();
                 poliz.push_back(Lexem(LEX_MINUSEQ, LEX_MINUSEQ));
             }
-            else throw "you can't do uno minus with string";
+            //else throw "you can't do uno minus with string";
         }
     }
     else if(c_type == LEX_CONTINUE) gl();
@@ -588,13 +591,13 @@ void Parser::E() {
     //cout << "im in E" << endl;
     E1();                  // самый низкий приоритет операций проверяем тут
     if(c_type == LEX_EQ || c_type == LEX_LSS || c_type == LEX_GTR ||
-         c_type == LEX_LEQ || c_type == LEX_GEQ || c_type == LEX_NEQ || c_type == LEX_ASSIGN || c_type == LEX_MINUSEQ) {
+         c_type == LEX_LEQ || c_type == LEX_GEQ || c_type == LEX_NEQ || c_type == LEX_ASSIGN /*|| c_type == LEX_MINUSEQ*/ ) {
         int tmp = c_type;
         if(tmp != LEX_ASSIGN) st_lex.push(c_type);
         gl();
         E1(); 
         if(tmp == LEX_ASSIGN) eq_type();
-        else check_op(); 
+        else if(tmp != LEX_MINUSEQ) check_op(); 
     }
 }
  
