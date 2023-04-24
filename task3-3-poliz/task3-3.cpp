@@ -139,11 +139,9 @@ Lexem Scanner::get_lex() {
                 }
                 else if(isdigit(c)) {
                     num = c - '0';
-                    //PREV = CUR_ST;
                     CUR_ST = NUMB;
                 } 
                 else if(c == '/') { 
-                    //PREV = CUR_ST;
                     CUR_ST = SLASH;
                 }
                 else if(c == '<' || c == '>' || c == '=') { 
