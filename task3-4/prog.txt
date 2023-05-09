@@ -1,19 +1,19 @@
 program {
+	string s = "here";
 	write(1 == 0);
 	int c, b;
 	read(b);	
 	c = b;
-	b = c + 5 + 24;
+	b = c + 5 * 24;
 	write(b);
 	b -= 3;
 	write(b);
 	read(c);
-	if(c == b) {
+	if(c <= b) {
 		continue;
 	} else {
 		write("no");
 	}
-	string s = "here";
 	write(s);
 	if(true) {
  		read(s);

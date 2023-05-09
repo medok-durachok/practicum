@@ -332,11 +332,7 @@ class Parser {
     void gl() {
         curr_lex = scan.get_lex();
         c_type = curr_lex.get_type();
-        if(c_type == LEX_FIN && scan.get_is_final()) {
-            //break;
-        }
         c_val = curr_lex.get_value();
-        //cout << curr_lex;
     }
 public:
     vector<Lexem> poliz;
@@ -373,9 +369,7 @@ void Parser::Prog() {
 }
 
 void Parser::D1(){
-   // cout << "here1" << endl;
     while ((c_type == LEX_INT) || (c_type == LEX_BOOLEAN) || (c_type == LEX_STRING)) {
-       // cout << "here2" << endl;
         D();
         if(c_type != LEX_SEMICOLON) {
             try {
@@ -400,20 +394,15 @@ void Parser::D1(){
 void Parser::D() {
     type_of_lex tmp = c_type;
     if (c_type == LEX_INT || c_type == LEX_BOOLEAN || c_type == LEX_STRING) {
-       // cout << "here3" << endl;
         gl();
         st_lex.push(tmp);
-        //cout << c_val << " " << tmp << endl;
         if(c_type == LEX_ID) TID[c_val].set_type(tmp);
         V();
-        //for(Lexem l : poliz) cout << l;
 
-        dec(tmp);        //for(Lexem l : poliz) cout << l;
-       // cout << c_val << TID.size() << endl;
+        dec(tmp); 
         TID[c_val].set_declare();         
         TID[c_val].set_type(tmp);     
         V();
-                //for(Lexem l : poliz) cout << l;
 
         while (c_type == LEX_COMMA) {
             gl();
@@ -442,15 +431,12 @@ void Parser::D() {
 
 void Parser::V() {
     int tmp_c_val = c_val;
-    if(c_type == LEX_ID) {  
-               // cout << "here4" << endl;     
+    if(c_type == LEX_ID) {       
         st_int.push(c_val);
         gl();
         if(c_type == LEX_ASSIGN) {
-            //cout << TID[tmp_c_val].get_type() << endl;
             st_lex.push(LEX_ID);
             st_lex.push(TID[tmp_c_val].get_type());
-            //cout << POLIZ_ADDRESS;
             poliz.push_back(Lexem(POLIZ_ADDRESS, tmp_c_val));   
             tmp_c_val = c_val;
             gl();
@@ -491,8 +477,6 @@ void Parser::A() {
 }
  
 void Parser::B() {
-   // for(Lexem l : poliz) cout << l;
-    //cout << "in B" << endl;
     while(c_type != LEX_RCBRACE) {
         while(c_type != LEX_RCBRACE && c_type != LEX_FIN) {
             S();
@@ -501,13 +485,10 @@ void Parser::B() {
 }
 
 void Parser::S() {
-    //cout << "in S" << c_type << endl;
-    //for(Lexem l : poliz) cout << l;
     int pl0, pl1, pl2, pl3;
     if (c_type == LEX_LCBRACE) gl();
     else if(c_type == LEX_RCBRACE) gl();
     else if(c_type == LEX_IF) {
-        //cout << "here";
         gl();
         E();
 
@@ -658,7 +639,6 @@ void Parser::T() {
 }
  
 void Parser::F() {
-    //cout << "in F" << c_type << endl;
     if(c_type == LEX_ID) {        
         check_id();                // ид проверяем на объявл
         type_of_lex tmp = TID[c_val].get_type();
@@ -698,8 +678,6 @@ void Parser::F() {
             gl();
         else throw curr_lex;
     }
-   // else 
-       // throw curr_lex;
 }
  
 void Parser::dec(type_of_lex type) {             // объявление и переобъявление 
@@ -804,11 +782,10 @@ void Executer::execute(vector<Lexem> &poliz) {
     int i, j, k, index = 0, size = poliz.size();
     stack <string> args_str;
     stack <string> args_str_reverse;
-    string str1,str2;
-    //cout << size << endl;
+    string str1, str2;
+
     while(index < size) {
         pc_el = poliz[index];
-       // cout << endl << pc_el.get_type() << endl;
         switch(pc_el.get_type()) {
             case LEX_TRUE: case LEX_FALSE: case LEX_NUM: case POLIZ_ADDRESS: case POLIZ_LABEL:
                 args.push(pc_el.get_value());
@@ -818,9 +795,7 @@ void Executer::execute(vector<Lexem> &poliz) {
                 i = pc_el.get_value();
                 if(TID[i].get_assign()) {
                     if(TID[i].get_type() == LEX_STRING) {
-                        //cout << TSTR.size();
                         str1 = TSTR[TID[i].get_value()];
-                        //cout << str1;
                         args_str.push(str1);
                     }
                     args.push(TID[i].get_value());
@@ -993,7 +968,6 @@ void Executer::execute(vector<Lexem> &poliz) {
 
             case LEX_STRCONST:
                 i = pc_el.get_value();
-                //cout << i;
                 str1 = TSTR[i];
                 args_str.push(str1);
                 args.push(i);
