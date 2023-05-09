@@ -1,7 +1,12 @@
 program {
+	string s;
+int k = 4;
+write(k);
+s = "hi";
 	boolean x;
 	x = false;
-
+write(s);
+write("yes");
 if(3 > 1) {
 	write(1);
 } else {

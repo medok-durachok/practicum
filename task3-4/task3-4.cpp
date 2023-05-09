@@ -71,6 +71,7 @@ public:
 };
  
 vector<Id> TID;
+vector<string> TSTR;
  
 int set(const string &buf) {
     for(auto i = TID.begin(); i != TID.end(); ++i) {
@@ -78,6 +79,14 @@ int set(const string &buf) {
     }
     TID.push_back(Id(buf));
     return TID.size() - 1;
+}
+
+int setstr(const string &buf) {
+    for(auto i = TSTR.begin(); i != TSTR.end(); ++i) {
+        if(*i == buf) return i - TSTR.begin();
+    }
+    TSTR.push_back(string(buf));
+    return TSTR.size() - 1;
 }
  
 class Scanner {
@@ -247,7 +256,7 @@ Lexem Scanner::get_lex() {
                 break;
             case QOUTE:             //обработка простых кавычек вида "..." без вложений
                 if(c == '"') {
-                    i = set(buf);
+                    i = setstr(buf);
                     is_first_qoute = true;
                     return Lexem(LEX_STRCONST, i);
                 } else {
@@ -742,7 +751,6 @@ public:
  
 void Executer::execute(vector<Lexem> &poliz) {
     Lexem pc_el;
-    vector <string> STR_T;
     stack <int> args;
     stack <int> args_reverse;
     int i, j, k, index = 0, size = poliz.size();
@@ -762,8 +770,9 @@ void Executer::execute(vector<Lexem> &poliz) {
                 i = pc_el.get_value();
                 if(TID[i].get_assign()) {
                     if(TID[i].get_type() == LEX_STRING) {
-                        cout << STR_T.size();
-                        str1 = STR_T[TID[i].get_value()];
+                        cout << TSTR.size();
+                        str1 = TSTR[TID[i].get_value()];
+                        cout << str1;
                         args_str.push(str1);
                     }
                     args.push(TID[i].get_value());
@@ -831,8 +840,8 @@ void Executer::execute(vector<Lexem> &poliz) {
                 if(TID[i].get_type() == LEX_STRING)
                 {
                     cin >> str1;
-                    STR_T.push_back(str1);
-                    m = STR_T.size() + TID.size() - 2;
+                    TSTR.push_back(str1);
+                    m = TSTR.size();
                 }
                 else {
                     string j;
@@ -926,7 +935,7 @@ void Executer::execute(vector<Lexem> &poliz) {
             case LEX_STRCONST:
                 i = pc_el.get_value();
                 //cout << i;
-                str1 = STR_T[i - TID.size()];
+                str1 = TSTR[i];
                 args_str.push(str1);
                 args.push(i);
                 break;    
