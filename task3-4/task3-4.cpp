@@ -500,10 +500,12 @@ void Parser::S() {
         if(c_type == LEX_LCBRACE) {
             gl();
             S();
-
-            if(c_type != LEX_SEMICOLON) throw curr_lex;
-            poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
-            gl();      
+            while(c_type == LEX_SEMICOLON) {
+                poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
+                gl();;
+                if(c_type == LEX_RCBRACE) break;
+                else S();
+            }     
 
             pl3 = poliz.size(); 
             if (c_type != LEX_RCBRACE) throw curr_lex;
@@ -516,11 +518,14 @@ void Parser::S() {
                     poliz[pl2] = Lexem(POLIZ_LABEL, poliz.size());
                     gl();
                     S();
+                    while(c_type == LEX_SEMICOLON) {
+                        poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
+                        gl();
+                        if(c_type == LEX_RCBRACE) break;
+                        else S();
+                    } 
                     poliz[pl3] = Lexem(POLIZ_LABEL, poliz.size());
                 }
-                if(c_type != LEX_SEMICOLON) throw curr_lex;
-                poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
-                gl();
 
                 if (c_type != LEX_RCBRACE) throw curr_lex;
                 gl();
@@ -740,7 +745,7 @@ void Parser::check_op(){
         }
         st_lex.push(r);
     }
-    //cout << "*" << op << endl;
+    cout << "*" << op << endl;
     poliz.push_back(Lexem(op));
 }
  

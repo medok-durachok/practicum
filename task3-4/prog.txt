@@ -15,7 +15,8 @@ program {
 		write("no");
 	}
 	write(s);
-	if(true) {
+	if(true and (c > 100)) {
+		write("yes");
  		read(s);
 	}
 	write(s);
