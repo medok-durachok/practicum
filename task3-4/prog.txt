@@ -1,5 +1,5 @@
 program {
-	write(1 <= 0);
+	write(1 == 0);
 	int c, b;
 	read(b);	
 	c = b;
@@ -7,10 +7,16 @@ program {
 	write(b);
 	b -= 3;
 	write(b);
-	c = b;
+	read(c);
 	if(c == b) {
 		continue;
 	} else {
 		write("no");
 	}
+	string s = "here";
+	write(s);
+	if(true) {
+ 		read(s);
+	}
+	write(s);
 }

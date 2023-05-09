@@ -349,7 +349,7 @@ void Parser::analyze () {                   //первая запускаема�
     Prog(); // проверка на program
     if (c_type != LEX_FIN)
         throw curr_lex;
-    for(Lexem l : poliz) cout << l;
+    //for(Lexem l : poliz) cout << l;
 }
  
 void Parser::Prog() {
@@ -626,13 +626,13 @@ void Parser::S() {
 void Parser::E() {
     E1();                  // самый низкий приоритет операций проверяем тут
     if(c_type == LEX_EQ || c_type == LEX_LSS || c_type == LEX_GTR ||
-         c_type == LEX_LEQ || c_type == LEX_GEQ || c_type == LEX_NEQ || c_type == LEX_ASSIGN /*|| c_type == LEX_MINUSEQ*/ ) {
+         c_type == LEX_LEQ || c_type == LEX_GEQ || c_type == LEX_NEQ || c_type == LEX_ASSIGN || c_type == LEX_MINUSEQ) {
         int tmp = c_type;
-        if(tmp != LEX_ASSIGN) st_lex.push(c_type);
+        /*if(tmp != LEX_ASSIGN)*/ st_lex.push(c_type);
         gl();
         E1(); 
         if(tmp == LEX_ASSIGN) eq_type();
-        else if(tmp != LEX_MINUSEQ) check_op(); 
+        if(tmp != LEX_MINUSEQ) check_op(); 
     }
 }
  
@@ -659,11 +659,11 @@ void Parser::T() {
  
 void Parser::F() {
     //cout << "in F" << c_type << endl;
-    if(c_type == LEX_ID) {          
+    if(c_type == LEX_ID) {        
         check_id();                // ид проверяем на объявл
         type_of_lex tmp = TID[c_val].get_type();
-        st_lex.push(tmp);
-        poliz.push_back(Lexem(LEX_ID, c_val)); 
+        //st_lex.push(tmp);
+        poliz.push_back(curr_lex); 
         gl();
     }
     else if(c_type == LEX_NUM) {
@@ -733,14 +733,14 @@ void Parser::check_id_in_read() {
     }
 }
 
-void Parser::check_op() { 
+void Parser::check_op(){ 
     type_of_lex t1, t2, op, t = LEX_INT, r = LEX_BOOLEAN, s = LEX_STRING;
  
     from_stack(st_lex, t2);
     from_stack(st_lex, op);
     from_stack(st_lex, t1);
  
-    if (t1 == t2) {
+    if (t1 == t2){
         if (t1 == LEX_INT) {
             if (op == LEX_PLUS || op == LEX_MINUS || op == LEX_TIMES || op == LEX_SLASH) r = LEX_INT;
             else if (op == LEX_AND || op == LEX_OR) {
@@ -760,8 +760,9 @@ void Parser::check_op() {
                 throw "wrong types are in operation";
             }
         }
+        st_lex.push(r);
     }
-    st_lex.push(r);
+    //cout << "*" << op << endl;
     poliz.push_back(Lexem(op));
 }
  
@@ -807,7 +808,7 @@ void Executer::execute(vector<Lexem> &poliz) {
     //cout << size << endl;
     while(index < size) {
         pc_el = poliz[index];
-        //cout << endl << pc_el.get_type() << endl;
+       // cout << endl << pc_el.get_type() << endl;
         switch(pc_el.get_type()) {
             case LEX_TRUE: case LEX_FALSE: case LEX_NUM: case POLIZ_ADDRESS: case POLIZ_LABEL:
                 args.push(pc_el.get_value());
@@ -953,16 +954,13 @@ void Executer::execute(vector<Lexem> &poliz) {
                 from_stack(args, i);
                 from_stack(args, j);
                 if(!args_str.empty()) {
-                    str1 = args_str.top();
-                    args_str.pop();
-                    str2 = args_str.top();
-                    args_str.pop();
-                    //args_str.push(str2 + str1);
+                    from_stack(args_str, str1);
+                    from_stack(args_str, str2);
                     args.push(str1 == str2);
-                } else {
-                    args.push ( i == j);
-                }
+                } else args.push (i == j);
+
                 break;
+
             case LEX_LSS:
                 from_stack(args, i);
                 from_stack(args, j);
