@@ -1,16 +1,16 @@
 program {
-	string s;
-int k = 4;
-write(k);
-s = "hi";
-	boolean x;
-	x = false;
-write(s);
-write("yes");
-if(3 > 1) {
-	write(1);
-} else {
-	write(2);
-}
-
+	write(1 <= 0);
+	int c, b;
+	read(b);	
+	c = b;
+	b = c + 5 + 24;
+	write(b);
+	b -= 3;
+	write(b);
+	c = b;
+	if(c == b) {
+		continue;
+	} else {
+		write("no");
+	}
 }

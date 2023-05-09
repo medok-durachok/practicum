@@ -520,15 +520,11 @@ void Parser::S() {
             gl();
             S();
 
-            while(c_type == LEX_SEMICOLON) {
-                poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
-                gl();
-                S();
-            }
+            if(c_type != LEX_SEMICOLON) throw curr_lex;
+            poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
+            gl();      
 
             pl3 = poliz.size(); 
-            poliz.push_back(Lexem());
-
             if (c_type != LEX_RCBRACE) throw curr_lex;
             gl();
             if(c_type == LEX_ELSE) {
@@ -539,13 +535,12 @@ void Parser::S() {
                     poliz[pl2] = Lexem(POLIZ_LABEL, poliz.size());
                     gl();
                     S();
-                    while(c_type == LEX_SEMICOLON) {
-                        poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
-                        gl();
-                        S();
-                    }
                     poliz[pl3] = Lexem(POLIZ_LABEL, poliz.size());
                 }
+                if(c_type != LEX_SEMICOLON) throw curr_lex;
+                poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
+                gl();
+
                 if (c_type != LEX_RCBRACE) throw curr_lex;
                 gl();
             }
@@ -955,7 +950,7 @@ void Executer::execute(vector<Lexem> &poliz) {
                 }
  
             case LEX_EQ:
-                /*from_stack(args, i);
+                from_stack(args, i);
                 from_stack(args, j);
                 if(!args_str.empty()) {
                     str1 = args_str.top();
@@ -966,7 +961,7 @@ void Executer::execute(vector<Lexem> &poliz) {
                     args.push(str1 == str2);
                 } else {
                     args.push ( i == j);
-                }*/
+                }
                 break;
             case LEX_LSS:
                 from_stack(args, i);
