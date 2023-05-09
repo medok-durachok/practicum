@@ -1,0 +1,11 @@
+program {
+	boolean x;
+	x = false;
+
+if(3 > 1) {
+	write(1);
+} else {
+	write(2);
+}
+
+}
