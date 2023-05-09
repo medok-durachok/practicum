@@ -349,7 +349,7 @@ void Parser::analyze () {                   //первая запускаема�
     Prog(); // проверка на program
     if (c_type != LEX_FIN)
         throw curr_lex;
-    //for(Lexem l : poliz) cout << l;
+    for(Lexem l : poliz) cout << l;
 }
  
 void Parser::Prog() {
@@ -520,33 +520,37 @@ void Parser::S() {
             gl();
             S();
 
-            if (c_type != LEX_SEMICOLON) throw curr_lex;
-            poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
-            gl();
+            while(c_type == LEX_SEMICOLON) {
+                poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
+                gl();
+                S();
+            }
 
             pl3 = poliz.size(); 
             poliz.push_back(Lexem());
-
-            poliz.push_back(Lexem(POLIZ_GO));
-            poliz[pl2] = Lexem(POLIZ_LABEL, poliz.size());
 
             if (c_type != LEX_RCBRACE) throw curr_lex;
             gl();
             if(c_type == LEX_ELSE) {
                 gl();
                 if(c_type == LEX_LCBRACE) {
+                    poliz.push_back(Lexem());
                     poliz.push_back(Lexem(POLIZ_GO, POLIZ_GO));
+                    poliz[pl2] = Lexem(POLIZ_LABEL, poliz.size());
                     gl();
                     S();
-                    poliz[pl3] = Lexem ( POLIZ_LABEL, poliz.size() );
+                    while(c_type == LEX_SEMICOLON) {
+                        poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));
+                        gl();
+                        S();
+                    }
+                    poliz[pl3] = Lexem(POLIZ_LABEL, poliz.size());
                 }
-                if (c_type != LEX_SEMICOLON) throw curr_lex;
-                poliz.push_back(Lexem(LEX_SEMICOLON, LEX_SEMICOLON));  
-                gl();
                 if (c_type != LEX_RCBRACE) throw curr_lex;
                 gl();
             }
             else {
+                poliz[pl2] = Lexem(POLIZ_LABEL, poliz.size());
                 S();
             }
         }
@@ -735,19 +739,34 @@ void Parser::check_id_in_read() {
 }
 
 void Parser::check_op() { 
-    type_of_lex t1, t2, op, t = LEX_INT, r = LEX_BOOLEAN;
+    type_of_lex t1, t2, op, t = LEX_INT, r = LEX_BOOLEAN, s = LEX_STRING;
  
     from_stack(st_lex, t2);
     from_stack(st_lex, op);
     from_stack(st_lex, t1);
  
-    if(op == LEX_PLUS || op == LEX_MINUS || op == LEX_TIMES || op == LEX_SLASH || op == LEX_EQ) r = LEX_INT;
-    if(op == LEX_OR || op == LEX_AND) t = LEX_BOOLEAN;
-    if(t1 == t2  &&  t1 == t) st_lex.push(r);
-    else {
-        cout << "wrong types are in operation";
-        throw "wrong types are in operation";
+    if (t1 == t2) {
+        if (t1 == LEX_INT) {
+            if (op == LEX_PLUS || op == LEX_MINUS || op == LEX_TIMES || op == LEX_SLASH) r = LEX_INT;
+            else if (op == LEX_AND || op == LEX_OR) {
+                cout << "wrong types are in operation";
+                throw "wrong types are in operation";
+            }
+        } else if(t1 == LEX_BOOLEAN) {
+            if(op == LEX_AND || op == LEX_OR || op == LEX_EQ || op == LEX_NEQ || op == LEX_GTR || op == LEX_LSS || op == LEX_GEQ || op == LEX_LEQ) r = LEX_BOOLEAN;
+            else {
+                cout << "wrong types are in operation";
+                throw "wrong types are in operation";
+            }
+        } else if (t1 == LEX_STRING) {
+            if (op == LEX_EQ || op == LEX_NEQ) r = LEX_STRING;
+            else {
+                cout << "wrong types are in operation";
+                throw "wrong types are in operation";
+            }
+        }
     }
+    st_lex.push(r);
     poliz.push_back(Lexem(op));
 }
  
