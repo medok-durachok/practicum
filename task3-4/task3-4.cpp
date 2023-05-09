@@ -108,8 +108,10 @@ public:
     static const char *TW[], *TD[];
 
     Scanner(const char *program) {
-        if (!(f = fopen(program, "r"))) 
+        if (!(f = fopen(program, "r"))) {
+            cout << "can’t open file";
             throw "can’t open file";
+        }
        	//else cout << "successful file opening\n" << endl;
     }
 
@@ -240,6 +242,7 @@ Lexem Scanner::get_lex() {
                     i = look(buf, TD);
                     if(buf[0] == '<') return Lexem(LEX_LEQ, i);
                     if(buf[0] == '>') return Lexem(LEX_GEQ, i);
+                    if(buf[0] == '=') return Lexem(LEX_EQ, i);
                     return Lexem((type_of_lex)(i + (int)LEX_FIN), i);
                 } else if(c == ' ') {
                     ungetc(c, f);
@@ -268,7 +271,7 @@ Lexem Scanner::get_lex() {
 }
  
 ostream & operator<< (ostream &s, Lexem l) {
-    string t, table = "table of id and consts";
+    string t, table = "poliz table";
     if(l.t_lex <= LEX_CONTINUE) {
         t = Scanner::TW[l.t_lex];
         table = "table of words";
@@ -278,16 +281,18 @@ ostream & operator<< (ostream &s, Lexem l) {
         table = "table of dividers";
     }
     else if(l.t_lex == LEX_NUM) t = "NUMBER";
-    else if(l.t_lex == LEX_ID) t = TID[l.v_lex].get_name();
-    else if(l.t_lex == LEX_STRCONST) t = TID[l.v_lex].get_name(); 
-    else if ( l.t_lex == POLIZ_LABEL )
-        t = "Label";
-    else if ( l.t_lex == POLIZ_ADDRESS )
-        t = "Addr";
-    else if ( l.t_lex == POLIZ_GO )
-        t = "!";
-    else if ( l.t_lex == POLIZ_FGO ) 
-        t = "!F";          
+    else if(l.t_lex == LEX_ID) {
+        t = TID[l.v_lex].get_name();
+        table = "table of identifiers";
+    } 
+    else if(l.t_lex == LEX_STRCONST) {
+        table = "table of string consts";
+        t = TSTR[l.v_lex]; 
+    }
+    else if(l.t_lex == POLIZ_LABEL)t = "Label";
+    else if(l.t_lex == POLIZ_ADDRESS) t = "Addr";
+    else if(l.t_lex == POLIZ_GO) t = "!";
+    else if(l.t_lex == POLIZ_FGO) t = "!F";          
     else throw l;
     s << "From " << table << ": (\'" << t << "\', " << l.v_lex << ");" << endl;
     return s;
@@ -344,7 +349,7 @@ void Parser::analyze () {                   //первая запускаема�
     Prog(); // проверка на program
     if (c_type != LEX_FIN)
         throw curr_lex;
-    for(Lexem l : poliz) cout << l;
+    //for(Lexem l : poliz) cout << l;
 }
  
 void Parser::Prog() {
@@ -361,7 +366,8 @@ void Parser::Prog() {
     else {
         gl();
         if(c_type != LEX_FIN) {
-            throw " Program finished with ERRORS ";
+            cout << "Program finished with ERRORS";
+            throw "Program finished with ERRORS";
         }
     }
 }
@@ -418,7 +424,10 @@ void Parser::D() {
             dec(tmp);
             try {
                 if(c_type == LEX_ID) {
-                    if (TID[c_val].get_declare()) throw "twice";
+                    if (TID[c_val].get_declare()) {
+                        cout << "declared twice";
+                        throw "twice";
+                    }
                     TID[c_val].set_declare();
                     TID[c_val].set_type(tmp);
                 }
@@ -589,7 +598,10 @@ void Parser::S() {
             eq_type(); 
             poliz.push_back(Lexem(LEX_ASSIGN));
         } else if(c_type == LEX_MINUSEQ) {
-            if(tmp == LEX_BOOLEAN) throw "can't do uno minus with bool";
+            if(tmp == LEX_BOOLEAN) {
+                cout << "can't do uno minus with bool";
+                throw "can't do uno minus with bool";
+            }
             if(tmp != LEX_STRING) {
                 gl();
                 E();
@@ -597,7 +609,10 @@ void Parser::S() {
                 eq_type();
                 poliz.push_back(Lexem(LEX_MINUSEQ, LEX_MINUSEQ));
             }
-            else throw "can't do uno minus with string";
+            else {
+                cout << "can't do uno minus with string";
+                throw "can't do uno minus with string";
+            }
         }
     }
     else if(c_type == LEX_CONTINUE) gl();
@@ -692,7 +707,10 @@ void Parser::dec(type_of_lex type) {             // объявление и пе
     int i;
     while(!st_int.empty()) {
         from_stack(st_int, i);
-        if(TID[i].get_declare()) throw "twice";
+        if(TID[i].get_declare()) {
+            cout << "declared twice";
+            throw "twice";
+        }
         else {
             TID[i].set_declare();
             TID[i].set_type(type);
@@ -703,14 +721,17 @@ void Parser::dec(type_of_lex type) {             // объявление и пе
 void Parser::check_id() {
     if(TID[c_val].get_declare())
         st_lex.push(TID[c_val].get_type());
-    else{
-        cout << "im not declared" << endl;
+    else {
+        cout << "im not declared";
         throw "not declared";
     }
 }
  
 void Parser::check_id_in_read() {
-    if(!TID [c_val].get_declare()) throw "not declared";
+    if(!TID [c_val].get_declare()) {
+        cout << "im not declared";
+        throw "not declared";
+    }
 }
 
 void Parser::check_op() { 
@@ -720,27 +741,39 @@ void Parser::check_op() {
     from_stack(st_lex, op);
     from_stack(st_lex, t1);
  
-    if(op == LEX_PLUS || op == LEX_MINUS || op == LEX_TIMES || op == LEX_SLASH) r = LEX_INT;
+    if(op == LEX_PLUS || op == LEX_MINUS || op == LEX_TIMES || op == LEX_SLASH || op == LEX_EQ) r = LEX_INT;
     if(op == LEX_OR || op == LEX_AND) t = LEX_BOOLEAN;
     if(t1 == t2  &&  t1 == t) st_lex.push(r);
-    else throw "wrong types are in operation";
+    else {
+        cout << "wrong types are in operation";
+        throw "wrong types are in operation";
+    }
     poliz.push_back(Lexem(op));
 }
  
 void Parser::check_not() {
-    if(st_lex.top() != LEX_BOOLEAN) throw "wrong type is in not";
+    if(st_lex.top() != LEX_BOOLEAN) {
+        cout << "wrong type is in not";
+        throw "wrong type is in not";
+    }
     else poliz.push_back(Lexem(LEX_NOT));
 }
  
 void Parser::eq_type() {
     type_of_lex t;
     from_stack(st_lex, t);
-    if (t != st_lex.top()) throw "wrong type in assignment";
+    if (t != st_lex.top()) {
+        cout << "wrong type in assignment";
+        throw "wrong type in assignment";
+    }
     st_lex.pop();
 }
  
 void Parser::eq_bool() {
-    if(st_lex.top() != LEX_BOOLEAN) throw "expression is not boolean";
+    if(st_lex.top() != LEX_BOOLEAN) {
+        cout << "expression is not boolean";
+        throw "expression is not boolean";
+    }
     st_lex.pop();
 }
 
@@ -770,15 +803,19 @@ void Executer::execute(vector<Lexem> &poliz) {
                 i = pc_el.get_value();
                 if(TID[i].get_assign()) {
                     if(TID[i].get_type() == LEX_STRING) {
-                        cout << TSTR.size();
+                        //cout << TSTR.size();
                         str1 = TSTR[TID[i].get_value()];
-                        cout << str1;
+                        //cout << str1;
                         args_str.push(str1);
                     }
                     args.push(TID[i].get_value());
                     break;
                 }
-                else throw "POLIZ: indefinite identifier";
+                else {
+                    cout << "indefinite identifier";
+                    throw "indefinite identifier";
+                }
+                break;
  
             case LEX_NOT:
                 from_stack(args, i);
@@ -834,19 +871,19 @@ void Executer::execute(vector<Lexem> &poliz) {
                 int m;
                 from_stack(args, i);
                 if (TID[i].get_type() == LEX_INT) {
-                    cout << "Input int value for " << TID[i].get_name () << endl;
+                    cout << "Enter integer value for " << TID[i].get_name () << ": ";
                     cin >> m;
-                } else
-                if(TID[i].get_type() == LEX_STRING)
+                } else if(TID[i].get_type() == LEX_STRING)
                 {
+                    cout << "Enter string value for " << TID[i].get_name () << ": ";
                     cin >> str1;
                     TSTR.push_back(str1);
-                    m = TSTR.size();
+                    m = TSTR.size() - 1;
                 }
                 else {
                     string j;
                     while(1) {
-                        cout << "Input boolean value (true or false) for" << TID[i].get_name() << endl;
+                        cout << "Input boolean value for " << TID[i].get_name() << ": ";
                         cin >> j;
                         if(j != "true" && j != "false") {
                             cout << "Error in input:true/false" << endl;
@@ -893,15 +930,25 @@ void Executer::execute(vector<Lexem> &poliz) {
                     args.push(j / i);
                     break;
                 }
-                else
-                    throw "POLIZ:divide by zero";
+                else {
+                    cout << "division by zero";
+                    throw "POLIZ: division by zero";
+                }
  
             case LEX_EQ:
-                from_stack(args, i);
+                /*from_stack(args, i);
                 from_stack(args, j);
-                args.push(i == j);
+                if(!args_str.empty()) {
+                    str1 = args_str.top();
+                    args_str.pop();
+                    str2 = args_str.top();
+                    args_str.pop();
+                    //args_str.push(str2 + str1);
+                    args.push(str1 == str2);
+                } else {
+                    args.push ( i == j);
+                }*/
                 break;
- 
             case LEX_LSS:
                 from_stack(args, i);
                 from_stack(args, j);
@@ -951,19 +998,19 @@ void Executer::execute(vector<Lexem> &poliz) {
                 break;
 
             case LEX_SEMICOLON:
-                if(!args.empty())
-                {
+                if(!args.empty()) {
+                    cout << "too much elems";
                     throw "POLIZ: Too much elems";
                 }
-                
                 break;
  
             default:
+                cout << "unexpected elem";
                 throw "POLIZ: unexpected elem";
-        }//end of switch
+        }
         ++index;
-    };//end of while
-    cout << "Finish of executing!!!" << endl;
+    };
+    cout << "Finish" << endl;
 }
  
 class Interpretator {
@@ -976,7 +1023,7 @@ public:
  
 void Interpretator::interpretation() {
     pars.analyze();
-    cout << "ok" << endl;
+    //cout << "ok" << endl;
     E.execute(pars.poliz);
 }
 
@@ -995,7 +1042,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     catch(...) {
-        cout << "unexpected behaviour" << endl;
+        cout << endl << "unexpected behaviour" << endl;
         return 1;
     }
 	return 0;
