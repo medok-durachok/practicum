@@ -1,0 +1,23 @@
+program {
+	string s = "here";
+	write(1 == 0);
+	int c, b;
+	read(b);	
+	c = b;
+	b = c + 5 * 24;
+	write(b);
+	b -= 3;
+	write(b);
+	read(c);
+	if(c <= b) {
+		continue;
+	} else {
+		write("no");
+	}
+	write(s);
+	if(true and (c > 100)) {
+		write("yes");
+ 		read(s);
+	}
+	write(s);
+}
