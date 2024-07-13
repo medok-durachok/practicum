@@ -1,0 +1,6 @@
+program {
+	int s = 3;
+	if(s != 5) {
+		write("helllooooooo");
+	}
+}
